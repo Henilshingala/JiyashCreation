@@ -1,0 +1,532 @@
+{% extends "app/base.html" %}
+{% block title %}Customer Reviews - Jiyash{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Customer Reviews</h1>
+  <p>See what our customers say about our handcrafted jewelry</p>
+</div>
+
+<div class="reviews-container">
+  <div class="reviews-summary">
+    <div class="overall-rating">
+      <div class="rating-stars">
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+      </div>
+      <div class="rating-number">4.8</div>
+      <div class="rating-text">out of 5</div>
+      <div class="total-reviews">Based on 127 reviews</div>
+    </div>
+    
+    <div class="rating-breakdown">
+      <div class="rating-bar">
+        <span class="rating-label">5 stars</span>
+        <div class="rating-progress">
+          <div class="progress-fill" style="width: 85%"></div>
+        </div>
+        <span class="rating-count">108</span>
+      </div>
+      <div class="rating-bar">
+        <span class="rating-label">4 stars</span>
+        <div class="rating-progress">
+          <div class="progress-fill" style="width: 12%"></div>
+        </div>
+        <span class="rating-count">15</span>
+      </div>
+      <div class="rating-bar">
+        <span class="rating-label">3 stars</span>
+        <div class="rating-progress">
+          <div class="progress-fill" style="width: 2%"></div>
+        </div>
+        <span class="rating-count">3</span>
+      </div>
+      <div class="rating-bar">
+        <span class="rating-label">2 stars</span>
+        <div class="rating-progress">
+          <div class="progress-fill" style="width: 1%"></div>
+        </div>
+        <span class="rating-count">1</span>
+      </div>
+      <div class="rating-bar">
+        <span class="rating-label">1 star</span>
+        <div class="rating-progress">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="rating-count">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <h2>All Reviews</h2>
+      <div class="review-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="5">5 Stars</button>
+        <button class="filter-btn" data-filter="4">4 Stars</button>
+        <button class="filter-btn" data-filter="3">3 Stars</button>
+        <button class="filter-btn" data-filter="2">2 Stars</button>
+        <button class="filter-btn" data-filter="1">1 Star</button>
+      </div>
+    </div>
+
+    <div class="reviews-grid">
+      <div class="review-card" data-rating="5">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">S</div>
+            <div class="reviewer-details">
+              <div class="reviewer-name">Sarah M.</div>
+              <div class="review-date">2 days ago</div>
+            </div>
+          </div>
+          <div class="review-rating">
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <h3 class="review-title">Beautiful craftsmanship!</h3>
+          <p class="review-text">I absolutely love my new necklace! The quality is exceptional and it's exactly what I was looking for. The attention to detail is amazing.</p>
+        </div>
+        <div class="review-product">
+          <span class="product-tag">Product: Enamel Necklace</span>
+        </div>
+      </div>
+
+      <div class="review-card" data-rating="5">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">P</div>
+            <div class="reviewer-details">
+              <div class="reviewer-name">Priya K.</div>
+              <div class="review-date">1 week ago</div>
+            </div>
+          </div>
+          <div class="review-rating">
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <h3 class="review-title">Perfect gift for my sister</h3>
+          <p class="review-text">Bought this as a birthday gift and my sister was overjoyed! The design is unique and the quality is top-notch. Highly recommend!</p>
+        </div>
+        <div class="review-product">
+          <span class="product-tag">Product: Brass Earrings</span>
+        </div>
+      </div>
+
+      <div class="review-card" data-rating="4">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">A</div>
+            <div class="reviewer-details">
+              <div class="reviewer-name">Anjali R.</div>
+              <div class="review-date">2 weeks ago</div>
+            </div>
+          </div>
+          <div class="review-rating">
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">☆</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <h3 class="review-title">Lovely design, great value</h3>
+          <p class="review-text">The ring is beautiful and fits perfectly. The only reason I'm giving 4 stars is because the delivery took a bit longer than expected.</p>
+        </div>
+        <div class="review-product">
+          <span class="product-tag">Product: Silver Ring</span>
+        </div>
+      </div>
+
+      <div class="review-card" data-rating="5">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">M</div>
+            <div class="reviewer-details">
+              <div class="reviewer-name">Meera S.</div>
+              <div class="review-date">3 weeks ago</div>
+            </div>
+          </div>
+          <div class="review-rating">
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+            <span class="star">★</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <h3 class="review-title">Exceeds expectations</h3>
+          <p class="review-text">I'm so impressed with the quality! The bracelet is stunning and the packaging was beautiful. Will definitely shop here again.</p>
+        </div>
+        <div class="review-product">
+          <span class="product-tag">Product: Pearl Bracelet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="load-more">
+      <button class="load-more-btn">Load More Reviews</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+  }
+
+  .page-header h1 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .page-header p {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .reviews-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .reviews-summary {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .overall-rating {
+    text-align: center;
+  }
+
+  .rating-stars {
+    font-size: 32px;
+    color: #ffd700;
+    margin-bottom: 10px;
+  }
+
+  .rating-number {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+
+  .rating-text {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .total-reviews {
+    color: #999;
+    font-size: 14px;
+  }
+
+  .rating-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .rating-label {
+    min-width: 60px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .rating-progress {
+    flex: 1;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #ffd700;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .rating-count {
+    min-width: 30px;
+    font-size: 14px;
+    color: #666;
+    text-align: right;
+  }
+
+  .reviews-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reviews-header h2 {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .review-filters {
+    display: flex;
+    gap: 10px;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: white;
+    color: #666;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .reviews-grid {
+    display: grid;
+    gap: 25px;
+    margin-bottom: 30px;
+  }
+
+  .review-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .reviewer-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .reviewer-name {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+
+  .review-date {
+    font-size: 14px;
+    color: #999;
+  }
+
+  .review-rating {
+    color: #ffd700;
+    font-size: 18px;
+  }
+
+  .review-content {
+    margin-bottom: 20px;
+  }
+
+  .review-title {
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .review-text {
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .review-product {
+    margin-top: 15px;
+  }
+
+  .product-tag {
+    background: #f8f9fa;
+    color: #666;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .load-more {
+    text-align: center;
+  }
+
+  .load-more-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .load-more-btn:hover {
+    background: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      margin-bottom: 30px;
+      padding: 30px 15px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+    }
+
+    .page-header p {
+      font-size: 16px;
+    }
+
+    .reviews-container {
+      padding: 0 15px;
+    }
+
+    .reviews-summary {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .reviews-header {
+      flex-direction: column;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .review-filters {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .review-card {
+      padding: 20px;
+    }
+
+    .review-header {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .reviewer-info {
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  // Filter functionality
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const reviewCards = document.querySelectorAll('.review-card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active class from all buttons
+      filterBtns.forEach(b => b.classList.remove('active'));
+      // Add active class to clicked button
+      this.classList.add('active');
+
+      const filter = this.getAttribute('data-filter');
+      
+      reviewCards.forEach(card => {
+        if (filter === 'all' || card.getAttribute('data-rating') === filter) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Load more functionality
+  const loadMoreBtn = document.querySelector('.load-more-btn');
+  loadMoreBtn.addEventListener('click', function() {
+    // Add logic to load more reviews
+    console.log('Loading more reviews...');
+  });
+</script>
+{% endblock %}

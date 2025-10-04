@@ -1,0 +1,507 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content %}
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<script></script>
+<style>
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background: linear-gradient(135deg, #1a3f2b, rgba(45, 90, 61, 0.15), #2d5a3d, rgba(45, 90, 61, 0.15), #1a3f2b);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #333;
+    position: relative;
+  }
+
+
+  @keyframes slideInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes scaleIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+
+  .account-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    animation: slideInUp 0.8s ease-out;
+  }
+
+  .welcome-message {
+    background: linear-gradient(135deg, rgba(45, 90, 61, 0.95) 0%, rgba(31, 63, 43, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 24px;
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: scaleIn 0.6s ease-out 0.2s both;
+  }
+
+  .welcome-message::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+  }
+
+  .welcome-message h2 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #d1fae5, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+  }
+
+  .welcome-message p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+
+
+  .account-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    animation: fadeIn 0.8s ease-out 0.6s both;
+  }
+
+  .account-section {
+    background: rgba(31, 63, 43, 0.95);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .account-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #a7f3d0, #3d6b4f, #2d5a3d);
+  }
+
+  .account-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .section-title i {
+    color: #2d5a3d;
+    font-size: 1.8rem;
+  }
+
+  .info-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(45, 90, 61, 0.8) 0%, rgba(61, 107, 79, 0.1) 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #a7f3d0, #10b981);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
+
+  .info-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .info-item:hover::before {
+    transform: scaleY(1);
+  }
+
+  .info-label {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .info-value {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .account-actions {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    animation: fadeIn 0.8s ease-out 0.8s both;
+  }
+
+  .action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    margin: 0 0.75rem;
+    background: linear-gradient(135deg, #2d5a3d 0%, #3d6b4f 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(45, 90, 61, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .action-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .action-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(45, 90, 61, 0.4);
+  }
+
+  .action-button:hover::before {
+    left: 100%;
+  }
+
+  .action-button.danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+  }
+
+  .action-button.danger:hover {
+    box-shadow: 0 15px 35px rgba(239, 68, 68, 0.4);
+  }
+
+  .action-button.warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+  }
+
+  .action-button.warning:hover {
+    box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
+  }
+
+  .action-button i {
+    font-size: 1.2rem;
+  }
+
+
+
+  @media (max-width: 768px) {
+    .account-container {
+      margin: 1rem;
+      padding: 1rem;
+    }
+
+    .account-sections {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .welcome-message h2 {
+      font-size: 2rem;
+    }
+
+    .action-button {
+      margin: 0.5rem;
+      padding: 0.875rem 1.5rem;
+    }
+  }
+</style>
+
+
+
+<div class="account-container" id="accountContainer" style="display:none;">
+  <div class="welcome-message">
+    <h2 id="welcomeTitle">Welcome! 👋</h2>
+    <p>Your account dashboard is ready for you</p>
+  </div>
+
+
+
+
+
+  <div class="account-sections" id="accountSections" style="display:none;">
+    <div class="account-section">
+      <h3 class="section-title">
+        <i class="fas fa-user-circle"></i>
+        Personal Information
+      </h3>
+      
+      <div class="info-item">
+        <div class="info-label">Full Name</div>
+        <div class="info-value" id="fullName">Loading…</div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">Email Address</div>
+        <div class="info-value" id="emailValue">Loading…</div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">Phone Number</div>
+        <div class="info-value" id="phoneValue">Not provided</div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">Birth Date</div>
+        <div class="info-value" id="birthDateValue">Not provided</div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">Account Created</div>
+        <div class="info-value" id="createdAtValue">—</div>
+      </div>
+    </div>
+
+    <div class="account-section">
+      <h3 class="section-title">
+        <i class="fas fa-map-marked-alt"></i>
+        Address Information
+      </h3>
+      
+      <div class="info-item">
+        <div class="info-label">Address</div>
+        <div class="info-value">
+          <span id="addressLine">Not provided</span>
+        </div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">City</div>
+        <div class="info-value" id="cityValue">Not provided</div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">State/Province</div>
+        <div class="info-value" id="stateValue">Not provided</div>
+      </div>
+      
+      <div class="info-item">
+        <div class="info-label">Country</div>
+        <div class="info-value" id="countryValue">Not provided</div>
+      </div>
+    </div>
+
+    <div class="account-section" style="grid-column: 1 / -1;">
+      <h3 class="section-title">
+        <i class="fas fa-credit-card"></i>
+        Payment History
+      </h3>
+      <div class="info-item" style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="info-label">Total Payments</span>
+        <span class="info-value">{{ total_payments }}</span>
+      </div>
+      <div class="info-item" style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="info-label">Total Amount Paid (INR equivalent)</span>
+        <span class="info-value">₹{{ total_amount|floatformat:2 }}</span>
+      </div>
+      <div class="info-item" style="overflow-x:auto;">
+        <table style="width:100%;color:white;background:rgba(31,63,43,0.7);border-radius:10px;overflow:hidden;">
+          <thead>
+            <tr style="background:rgba(16,185,129,0.2);">
+              <th style="padding:8px;">Date/Time</th>
+              <th style="padding:8px;">Amount</th>
+              <th style="padding:8px;">Currency</th>
+              <th style="padding:8px;">Platform</th>
+              <th style="padding:8px;">Status</th>
+              <th style="padding:8px;">Payment ID</th>
+              <th style="padding:8px;">Order ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7" style="text-align:center;padding:12px;">No payments found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="account-actions" id="accountActions" style="display:none;">
+    <a href="{% url 'app:profile_edit' %}" class="action-button">
+      <i class="fas fa-edit"></i>
+      Edit Profile
+    </a>
+    
+    <a href="{% url 'app:home' %}" class="action-button">
+      <i class="fas fa-home"></i>
+      Back to Home
+    </a>
+    
+    <a href="{% url 'app:shop_all' %}" class="action-button">
+      <i class="fas fa-gem"></i>
+      Browse Categories
+    </a>
+    
+    <a href="{% url 'app:forgot_password' %}" class="action-button warning">
+      <i class="fas fa-key"></i>
+      Reset Password
+    </a>
+    
+    <!-- No logout button per requirements -->
+    
+  </div>
+</div>
+
+<script>
+
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+
+  document.querySelectorAll('.info-item').forEach(item => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(20px)';
+    item.style.transition = 'all 0.6s ease';
+    observer.observe(item);
+  });
+
+
+  document.querySelectorAll('.stat-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-10px) scale(1.05)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+    });
+  });
+
+  // JWT-driven loading
+  document.addEventListener('DOMContentLoaded', async function() {
+    const token = (function(){ try { return localStorage.getItem('jwt_token'); } catch(_) { return null; } })();
+    if (!token) {
+      window.location.href = '{% url "app:login" %}';
+      return;
+    }
+    try {
+      const resp = await fetch('{% url "app:profile_api" %}', {
+        headers: { 'Authorization': 'Bearer ' + token, 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      if (resp.status === 401) {
+        window.location.href = '{% url "app:login" %}';
+        return;
+      }
+      const data = await resp.json();
+      if (!data.success) {
+        throw new Error('Failed to load profile');
+      }
+      const u = data.user || {};
+      document.getElementById('welcomeTitle').textContent = `Welcome back, ${u.first_name || u.email || 'User'}! 👋`;
+      document.getElementById('fullName').textContent = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Not provided';
+      document.getElementById('emailValue').textContent = u.email || '—';
+      document.getElementById('phoneValue').textContent = u.phone_number || 'Not provided';
+      document.getElementById('birthDateValue').textContent = u.birth_date || 'Not provided';
+      const addr = u.address || {};
+      const addressLine = [addr.house_number, addr.apartment_society, addr.street_name].filter(Boolean).join(' ');
+      document.getElementById('addressLine').textContent = addressLine || 'Not provided';
+      document.getElementById('cityValue').textContent = addr.city || 'Not provided';
+      document.getElementById('stateValue').textContent = addr.state || 'Not provided';
+      document.getElementById('countryValue').textContent = addr.country || 'Not provided';
+
+      document.getElementById('accountContainer').style.display = '';
+      document.getElementById('accountSections').style.display = '';
+      document.getElementById('accountActions').style.display = '';
+    } catch (e) {
+      console.error('Profile load error:', e);
+      window.location.href = '{% url "app:login" %}';
+    }
+  });
+</script>
+{% endblock %}

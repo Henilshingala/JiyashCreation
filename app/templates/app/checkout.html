@@ -1,0 +1,97 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background: linear-gradient(135deg, #1a3f2b, rgba(45, 90, 61, 0.15), #2d5a3d, rgba(45, 90, 61, 0.15), #1a3f2b);
+    min-height: 100vh;
+    color: #333;
+  }
+
+  .checkout-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+  }
+
+  .checkout-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(45, 90, 61, 0.2);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0, 37, 64, 0.3);
+    padding: 3rem;
+    text-align: center;
+  }
+
+  .checkout-icon {
+    font-size: 4rem;
+    color: #2d5a3d;
+    margin-bottom: 1.5rem;
+  }
+
+  .checkout-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2d5a3d;
+    margin-bottom: 1rem;
+  }
+
+  .checkout-message {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 24px rgba(45, 90, 61, 0.3);
+    background: linear-gradient(135deg, #2d5a3d 0%, #3d6b4f 100%);
+    color: white;
+    margin: 0.5rem;
+  }
+
+  .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(45, 90, 61, 0.4);
+  }
+</style>
+
+<div class="checkout-container">
+  <div class="checkout-card">
+    <div class="checkout-icon">
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+    <h1 class="checkout-title">Checkout Page</h1>
+    <p class="checkout-message">
+      This is a placeholder checkout page. Your profile is complete and you can proceed with the order.
+    </p>
+    <p class="checkout-message">
+      <strong>TODO:</strong> Implement your checkout flow here (payment, order confirmation, etc.)
+    </p>
+    <div>
+      <a href="{% url 'app:cart' %}" class="btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Cart
+      </a>
+      <a href="{% url 'app:home' %}" class="btn">
+        <i class="fas fa-home"></i>
+        Back to Home
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
