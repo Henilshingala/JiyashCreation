@@ -105,6 +105,7 @@
           </div>
           <div class="progress-labels">
             <span class="progress-start">₹0</span>
+            <span class="progress-middle">₹5,000</span>
             <span class="progress-end">₹15,000</span>
           </div>
         </div>
@@ -192,125 +193,13 @@
   {% endif %}
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Real-time quantity update functionality
-    const quantityInputs = document.querySelectorAll('.quantity-input');
-    const quantityBtns = document.querySelectorAll('.quantity-btn');
-    
-    // Handle plus/minus buttons
-    quantityBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const isPlus = this.classList.contains('plus');
-        const isMinus = this.classList.contains('minus');
-        const input = isPlus ? this.previousElementSibling : this.nextElementSibling;
-        const itemId = input.dataset.itemId;
-        
-        let currentValue = parseInt(input.value) || 0;
-        
-        if (isPlus) {
-          currentValue++;
-        } else if (isMinus && currentValue > 0) {
-          currentValue--;
-        }
-        
-        input.value = currentValue;
-        updateCartQuantity(itemId, currentValue);
-      });
-    });
-    
-    // Handle direct input changes
-    quantityInputs.forEach(input => {
-      input.addEventListener('change', function() {
-        const itemId = this.dataset.itemId;
-        const quantity = parseInt(this.value) || 0;
-        updateCartQuantity(itemId, quantity);
-      });
-    });
-    
-    // Update cart quantity via AJAX
-    function updateCartQuantity(itemId, quantity) {
-      const token = localStorage.getItem('jwt_token');
-      
-      fetch(`/cart/update/${itemId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer ' + token,
-          'X-CSRFToken': getCookie('csrftoken'),
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: `quantity=${quantity}`
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          if (quantity === 0) {
-            // Remove item from page
-            location.reload();
-          } else {
-            // Update subtotal and cart total
-            location.reload();
-          }
-        } else {
-          alert(data.message || 'Failed to update cart');
-          location.reload();
-        }
-      })
-      .catch(error => {
-        console.error('Error updating cart:', error);
-        location.reload();
-      });
-    }
-    
-    // Remove from cart functionality
-    const removeBtns = document.querySelectorAll('.remove-btn');
-    removeBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const itemId = this.dataset.itemId;
-        removeFromCart(itemId);
-      });
-    });
-    
-    function removeFromCart(itemId) {
-      const token = localStorage.getItem('jwt_token');
-      
-      fetch(`/cart/remove/${itemId}/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'X-CSRFToken': getCookie('csrftoken'),
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        } else {
-          alert(data.message || 'Failed to remove item');
-        }
-      })
-      .catch(error => {
-        console.error('Error removing item:', error);
-        alert('Error removing item from cart');
-      });
-    }
-    
-    // Get CSRF token
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-  });
-</script>
 
 <style>
+/* Mobile-First Responsive Design */
 .cart-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: clamp(20px, 4vw, 40px) clamp(15px, 4vw, 20px);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: #fafbfc;
   min-height: 100vh;
@@ -318,15 +207,15 @@
 
 .page-header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: clamp(30px, 6vw, 48px);
   padding: 0;
   background: transparent;
   color: #1a1a1a;
 }
 
 .page-header h1 {
-  font-size: 2.25rem;
-  margin-bottom: 8px;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  margin-bottom: clamp(6px, 2vw, 8px);
   font-weight: 700;
   color: #111827;
   letter-spacing: -0.025em;
@@ -334,47 +223,70 @@
 
 .page-header h1 i {
   color: #6b7280;
-  margin-right: 12px;
+  margin-right: clamp(8px, 2vw, 12px);
 }
 
 .page-header p {
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 3vw, 1rem);
   color: #6b7280;
   margin: 0;
   font-weight: 400;
 }
 
 .cart-content {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 48px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 5vw, 32px);
+  align-items: stretch;
 }
 
-@media (max-width: 1024px) {
+/* Desktop Layout */
+@media (min-width: 768px) {
   .cart-content {
-    grid-template-columns: 1fr;
-    gap: 32px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+    align-items: start;
   }
 }
 
+/* Cart Items - Mobile First */
 .cart-items {
   background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: clamp(12px, 3vw, 16px);
+  order: 1;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .cart-items {
+    order: 0;
+    width: auto;
+  }
 }
 
 .cart-item {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: clamp(8px, 2vw, 12px);
+  padding: clamp(16px, 4vw, 24px);
   display: grid;
-  grid-template-columns: 100px 1fr auto auto;
-  gap: 20px;
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: clamp(12px, 3vw, 16px);
+  align-items: start;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Desktop Layout for Cart Items */
+@media (min-width: 768px) {
+  .cart-item {
+    grid-template-columns: 100px 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .cart-item:hover {
@@ -382,13 +294,28 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+/* Mobile-First Item Image */
 .item-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
+  width: 100%;
+  max-width: clamp(120px, 30vw, 150px);
+  height: clamp(120px, 30vw, 150px);
+  border-radius: clamp(8px, 2vw, 12px);
   overflow: hidden;
   background: #f9fafb;
   border: 1px solid #f3f4f6;
+  flex-shrink: 0;
+  margin: 0 auto;
+  justify-self: center;
+}
+
+@media (min-width: 768px) {
+  .item-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    margin: 0;
+    justify-self: start;
+  }
 }
 
 .item-image img {
@@ -405,17 +332,27 @@
   align-items: center;
   justify-content: center;
   color: #9ca3af;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
   font-weight: 500;
+  text-align: center;
 }
 
+/* Mobile-First Item Details */
 .item-details {
   flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .item-details {
+    text-align: left;
+  }
 }
 
 .item-title {
-  margin: 0 0 6px 0;
-  font-size: 1rem;
+  margin: 0 0 clamp(8px, 2vw, 12px) 0;
+  font-size: clamp(1rem, 4vw, 1.125rem);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -424,6 +361,21 @@
   color: #111827;
   text-decoration: none;
   transition: color 0.15s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .item-title {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  
+  .item-title a {
+    white-space: normal;
+  }
 }
 
 .item-title a:hover {
@@ -432,21 +384,57 @@
 
 .item-category {
   color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0 0 8px 0;
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  margin: 0 0 clamp(8px, 2vw, 12px) 0;
   font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .item-category {
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    white-space: normal;
+  }
 }
 
 .item-price {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
-  margin: 0;
+  font-size: clamp(1rem, 4vw, 1.125rem);
+  font-weight: 600;
+  color: #111827;
+  margin: clamp(8px, 2vw, 12px) 0 0 0;
 }
 
+@media (min-width: 768px) {
+  .item-price {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+/* Mobile-First Quantity and Actions */
 .item-quantity {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  margin-top: clamp(16px, 4vw, 20px);
+  padding-top: clamp(16px, 4vw, 20px);
+  border-top: 1px solid #f3f4f6;
+}
+
+@media (min-width: 768px) {
+  .item-quantity {
+    grid-column: auto;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    justify-content: center;
+  }
 }
 
 .quantity-controls {
@@ -454,23 +442,24 @@
   align-items: center;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: clamp(6px, 2vw, 8px);
   overflow: hidden;
 }
 
 .quantity-btn {
   background: transparent;
   border: none;
-  width: 32px;
-  height: 32px;
+  width: clamp(28px, 6vw, 32px);
+  height: clamp(28px, 6vw, 32px);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
   font-weight: 500;
   color: #6b7280;
   transition: all 0.15s ease;
+  touch-action: manipulation;
 }
 
 .quantity-btn:hover {
@@ -480,11 +469,11 @@
 
 .quantity-input {
   border: none;
-  width: 48px;
+  width: clamp(40px, 8vw, 48px);
   text-align: center;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
   font-weight: 500;
-  padding: 6px 4px;
+  padding: clamp(4px, 1vw, 6px) clamp(2px, 1vw, 4px);
   background: transparent;
   color: #111827;
 }
@@ -494,31 +483,72 @@
   background: #ffffff;
 }
 
+/* Mobile: Item total is part of the bottom row */
 .item-total {
-  text-align: right;
-  min-width: 100px;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: clamp(12px, 3vw, 16px);
+}
+
+@media (min-width: 768px) {
+  .item-total {
+    grid-column: auto;
+    display: block;
+    text-align: right;
+    min-width: 100px;
+    margin: 0;
+  }
 }
 
 .total-price {
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 3vw, 1rem);
   font-weight: 600;
   color: #111827;
-  margin-bottom: 8px;
+  margin: 0;
+  white-space: nowrap;
+  padding: clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: clamp(4px, 1vw, 6px);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .total-price {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    min-height: auto;
+    display: block;
+  }
 }
 
 .remove-btn {
   background: transparent;
   color: #ef4444;
   border: 1px solid #fecaca;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px);
+  border-radius: clamp(4px, 1vw, 6px);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
   font-weight: 500;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: clamp(4px, 1vw, 6px);
+  touch-action: manipulation;
+  white-space: nowrap;
+  min-height: 36px;
+  margin-left: clamp(8px, 2vw, 12px);
 }
 
 .remove-btn:hover {
@@ -527,14 +557,36 @@
   color: #dc2626;
 }
 
+@media (min-width: 768px) {
+  .remove-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    min-height: auto;
+    margin-left: 0;
+  }
+}
+
+/* Responsive Cart Summary */
 .cart-summary {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: clamp(8px, 2vw, 12px);
+  padding: clamp(16px, 4vw, 24px);
   height: fit-content;
-  position: sticky;
-  top: 24px;
+  position: static;
+  order: 2;
+  width: 100%;
+  margin-top: clamp(16px, 4vw, 24px);
+}
+
+@media (min-width: 768px) {
+  .cart-summary {
+    position: sticky;
+    top: 24px;
+    order: 0;
+    margin-top: 0;
+    width: auto;
+  }
 }
 
 .cart-summary h3 {
@@ -927,7 +979,7 @@
   color: #333;
   white-space: nowrap;
   position: absolute;
-  top: -30px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -940,6 +992,13 @@
   font-weight: 500;
   margin-top: 25px;
   padding: 0 5px;
+  position: relative;
+}
+
+.progress-middle {
+  position: absolute;
+  left: 33%;
+  transform: translateX(-50%);
 }
 
 /* Progress Message */
@@ -1006,7 +1065,7 @@
   .milestone-label {
     font-size: 9px;
     padding: 3px 6px;
-    top: -30px;
+    top: -20px;
   }
   
   .progress-message {
@@ -1188,6 +1247,169 @@
   
   .page-header h1 {
     font-size: 1.875rem;
+  }
+}
+
+/* Force Single Column Layout on Mobile */
+@media (max-width: 767px) {
+  .cart-content {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+  }
+  
+  .cart-items {
+    order: 1 !important;
+    width: 100% !important;
+  }
+  
+  .cart-summary {
+    order: 2 !important;
+    width: 100% !important;
+    position: static !important;
+    margin-top: clamp(20px, 5vw, 30px) !important;
+  }
+  
+  /* Mobile Cart Item Bottom Row Layout */
+  .item-quantity {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-top: clamp(16px, 4vw, 20px) !important;
+    padding-top: clamp(16px, 4vw, 20px) !important;
+    border-top: 1px solid #f3f4f6 !important;
+  }
+  
+  .item-total {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    order: 2 !important;
+  }
+  
+  .remove-btn {
+    margin-left: clamp(8px, 2vw, 12px) !important;
+    order: 3 !important;
+  }
+  
+  .quantity-controls {
+    order: 1 !important;
+  }
+}
+
+/* Additional Mobile Responsive Enhancements */
+@media (max-width: 480px) {
+  .cart-container {
+    padding: 16px 12px;
+  }
+  
+  .cart-content {
+    gap: 20px;
+  }
+  
+  .cart-summary {
+    padding: 16px;
+    margin-top: 20px;
+    border-radius: 12px;
+  }
+  
+  .cart-summary h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  
+  .category-row, .summary-row {
+    font-size: 0.75rem;
+  }
+  
+  .checkout-btn {
+    padding: 12px 16px;
+    font-size: 0.8125rem;
+    min-height: 44px;
+    width: 100%;
+  }
+  
+  .continue-shopping {
+    font-size: 0.8125rem;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .empty-cart {
+    padding: 40px 16px;
+  }
+  
+  .empty-cart i {
+    font-size: 32px;
+  }
+  
+  .empty-cart h2 {
+    font-size: 1.25rem;
+  }
+  
+  .empty-cart p {
+    font-size: 0.875rem;
+  }
+  
+  .shop-now-btn {
+    padding: 12px 20px;
+    font-size: 0.8125rem;
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .item-image {
+    width: 75px;
+    height: 75px;
+  }
+  
+  .cart-item {
+    padding: 20px;
+  }
+  
+  .item-title {
+    font-size: 0.9375rem;
+  }
+  
+  .checkout-btn, .shop-now-btn {
+    min-height: 48px;
+  }
+}
+
+/* Tablet and Desktop Enhancements */
+@media (min-width: 769px) {
+  .cart-summary {
+    position: sticky;
+    top: 24px;
+  }
+  
+  .item-title a {
+    white-space: normal;
+  }
+  
+  .item-category {
+    white-space: normal;
+  }
+  
+  .summary-row span:first-child {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .quantity-btn, .remove-btn, .checkout-btn, .shop-now-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .quantity-controls {
+    touch-action: manipulation;
   }
 }
 </style>

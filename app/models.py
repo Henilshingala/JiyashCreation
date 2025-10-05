@@ -271,8 +271,8 @@ class User(models.Model):
     state = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     pincode = models.CharField(max_length=10, blank=True, null=True)
-    password = models.CharField(max_length=128, default='password')
-    confirm_password = models.CharField(max_length=128, default='password')
+    password = models.CharField(max_length=128)
+    confirm_password = models.CharField(max_length=128)
     gender_choices = [('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]
     gender = models.CharField(max_length=10, choices=gender_choices, blank=True, null=True, default='Male')
     created_at = models.DateTimeField(default=timezone.now)

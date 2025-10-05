@@ -65,7 +65,7 @@
             <div class="product-card">
               <a href="{% if product.product_type == 'gold' %}{% url 'app:product_detail_gold' pk=product.id %}{% elif product.product_type == 'silver' %}{% url 'app:product_detail_silver' pk=product.id %}{% elif product.product_type == 'imitation' %}{% url 'app:product_detail_imitation' pk=product.id %}{% else %}{% url 'app:product_detail' product_type=product.product_type pk=product.id %}{% endif %}" class="product-link-wrapper">
                 <div class="product-image-container">
-                  {% if product.original_price and product.selling_price and product.original_price > product.selling_price %}
+                  {% if product.display_original_price|default:product.original_price and product.display_selling_price|default:product.selling_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
                     <div class="discount-badge">SALE</div>
                   {% endif %}
                   {% if product.image1 %}
@@ -84,9 +84,9 @@
                   <h5 class="product-title">{{ product.name }}</h5>
                   <p class="product-description">{{ product.description|truncatewords:10|default:"Beautiful jewelry piece" }}</p>
                   <div class="price-container">
-                    <span class="selling-price">₹{{ product.selling_price|floatformat:0 }}</span>
-                    {% if product.original_price and product.original_price > product.selling_price %}
-                      <del class="original-price">₹{{ product.original_price|floatformat:0 }}</del>
+                    <span class="selling-price">₹{{ product.display_selling_price|default:product.selling_price|floatformat:0 }}</span>
+                    {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                      <del class="original-price">₹{{ product.display_original_price|default:product.original_price|floatformat:0 }}</del>
                     {% endif %}
                   </div>
                   <div class="product-actions">

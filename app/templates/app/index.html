@@ -71,9 +71,9 @@
               <h3 class="arrival-title">{{ product.name }}</h3>
               <div class="price-row">
                 <div class="price-col">
-                  <span class="arrival-price">₹{{ product.selling_price }}</span>
-                  {% if product.original_price and product.original_price > product.selling_price %}
-                  <span class="old-price">₹{{ product.original_price }}</span>
+                  <span class="arrival-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
+                  {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                  <span class="old-price">₹{{ product.display_original_price|default:product.original_price }}</span>
                   {% endif %}
                 </div>
                 <div class="wishlist-count">
@@ -120,7 +120,7 @@
             {% else %}
             <div class="no-product-image">No image</div>
             {% endif %}
-            {% if product.original_price and product.selling_price and product.original_price > product.selling_price %}
+            {% if product.display_original_price|default:product.original_price and product.display_selling_price|default:product.selling_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
             <span class="discount-badge">
               {{ product.discount_percent }}% OFF
             </span>
@@ -133,9 +133,9 @@
             <h3 class="arrival-title">{{ product.name }}</h3>
             <div class="price-row">
               <div class="price-col">
-                <span class="arrival-price">₹{{ product.selling_price }}</span>
-                {% if product.original_price and product.original_price > product.selling_price %}
-                <span class="old-price">₹{{ product.original_price }}</span>
+                <span class="arrival-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
+                {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                <span class="old-price">₹{{ product.display_original_price|default:product.original_price }}</span>
                 {% endif %}
               </div>
               <div class="icon-group">
@@ -597,10 +597,66 @@
   .buy-btn { padding: 12px 20px 12px 22px; font-size: 15px; }
 }
 @media (max-width: 380px) {
-  .slide-content { padding: 12px 14px; top: 58%; }
-  .slide-title { font-size: 18px; }
-  .slide-text { font-size: 12px; }
-  .buy-btn { padding: 10px 16px; font-size: 14px; }
+  .slide-content { 
+    padding: clamp(10px, 3vw, 12px) clamp(12px, 3.5vw, 14px); 
+    top: 58%; 
+    width: min(96%, 320px);
+  }
+  .slide-title { 
+    font-size: clamp(16px, 4.5vw, 18px); 
+    margin-bottom: clamp(8px, 2vw, 10px);
+  }
+  .slide-text { 
+    font-size: clamp(11px, 3vw, 12px); 
+    margin-bottom: clamp(10px, 2.5vw, 12px);
+    max-width: 280px;
+  }
+  .buy-btn { 
+    padding: clamp(8px, 2vw, 10px) clamp(14px, 3.5vw, 16px); 
+    font-size: clamp(13px, 3.5vw, 14px);
+    min-height: 40px;
+  }
+}
+
+/* Additional Touch-Friendly Enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .buy-btn, .btn, .view-product {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  .wish-icon {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  .carousel-nav {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .dot {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  .dot.active::before {
+    background: #2d5a3d;
+    transform: scale(1.2);
+  }
 }
 @media (max-width: 768px) {
   .carousel-nav { display: none !important; }
@@ -700,46 +756,153 @@
   background: rgba(255, 255, 255, 0.7);
   transform: scale(1.1);
 }
-@media (max-width: 1024px) {
+/* Enhanced Mobile-First Responsive Design */
+@media (max-width: 480px) {
+  .new-arrivals-section {
+    padding: clamp(40px, 8vw, 60px) 0;
+  }
+  
+  .section-title {
+    font-size: clamp(20px, 5vw, 24px);
+    margin-bottom: clamp(8px, 2vw, 10px);
+  }
+  
+  .section-subtitle {
+    font-size: clamp(14px, 3.5vw, 16px);
+    margin-bottom: clamp(30px, 6vw, 40px);
+  }
+  
+  .new-arrivals-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 4vw, 20px);
+    padding: 0 clamp(10px, 3vw, 15px);
+  }
+  
+  .arrival-card {
+    border-radius: clamp(8px, 2vw, 12px);
+  }
+  
+  .arrival-info {
+    padding: clamp(16px, 4vw, 20px);
+  }
+  
+  .arrival-title {
+    font-size: clamp(16px, 4vw, 18px);
+    margin-top: clamp(8px, 2vw, 12px);
+  }
+  
+  .arrival-price {
+    font-size: clamp(16px, 4vw, 18px);
+  }
+  
+  .old-price {
+    font-size: clamp(12px, 3vw, 13px);
+  }
+  
+  .wish-icon {
+    width: clamp(28px, 6vw, 32px);
+    height: clamp(28px, 6vw, 32px);
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+  
+  .wishlist-count {
+    font-size: clamp(10px, 2.5vw, 12px);
+    padding: clamp(3px, 1vw, 4px) clamp(6px, 1.5vw, 8px);
+  }
+  
+  .new-badge {
+    font-size: clamp(10px, 2.5vw, 12px);
+    padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 12px);
+  }
+  
+  .discount-badge {
+    font-size: clamp(10px, 2.5vw, 12px);
+    padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 10px);
+    top: clamp(8px, 2vw, 12px);
+    right: clamp(8px, 2vw, 12px);
+  }
+  
+  .view-product {
+    font-size: clamp(14px, 3.5vw, 16px);
+    padding: clamp(10px, 2.5vw, 12px) clamp(20px, 5vw, 24px);
+  }
+  
+  .coming-soon-content {
+    padding: clamp(30px, 6vw, 40px) clamp(20px, 4vw, 30px);
+    margin: 0 clamp(10px, 3vw, 15px);
+  }
+  
+  .coming-soon-title {
+    font-size: clamp(20px, 5vw, 24px);
+  }
+  
+  .coming-soon-message {
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+  
+  .btn {
+    padding: clamp(10px, 2.5vw, 12px) clamp(20px, 5vw, 24px);
+    font-size: clamp(14px, 3.5vw, 16px);
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .new-arrivals-section {
+    padding: clamp(50px, 8vw, 60px) 0;
+  }
+  
+  .section-title {
+    font-size: clamp(24px, 5vw, 28px);
+  }
+  
+  .new-arrivals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(16px, 3vw, 20px);
+    padding: 0 clamp(10px, 3vw, 15px);
+  }
+  
+  .arrival-info {
+    padding: clamp(16px, 3vw, 20px);
+  }
+  
+  .arrival-title {
+    font-size: clamp(16px, 3.5vw, 18px);
+  }
+  
+  .arrival-price {
+    font-size: clamp(16px, 3.5vw, 18px);
+  }
+  
+  .wish-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
   .new-arrivals-section {
     padding: 60px 0;
   }
+  
   .section-title {
     font-size: 28px;
   }
+  
   .new-arrivals-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     padding: 0 15px;
   }
+  
   .arrival-info {
-    padding: 16px;
+    padding: 18px;
   }
 }
-@media (max-width: 768px) {
+
+@media (min-width: 1025px) {
   .new-arrivals-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 0 10px;
-  }
-  .arrival-info {
-    padding: 14px;
-  }
-  .arrival-title {
-    font-size: 14px;
-  }
-  .arrival-price {
-    font-size: 14px;
-  }
-}
-@media (max-width: 480px) {
-  .new-arrivals-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 0 5px;
-  }
-  .arrival-info {
-    padding: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (max-width: 768px) {

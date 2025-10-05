@@ -21,9 +21,9 @@
             <h3 class="product-name">{{ product.title }}</h3>
             <p class="product-description">{{ product.description|truncatewords:15 }}</p>
             <div class="product-price">
-              <span class="current-price">₹{{ product.adjusted_selling_price|default:product.selling_price }}</span>
+              <span class="current-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
               {% if product.discount_percentage > 0 %}
-                <span class="original-price">₹{{ product.adjusted_original_price|default:product.original_price }}</span>
+                <span class="original-price">₹{{ product.display_original_price|default:product.original_price }}</span>
               {% endif %}
             </div>
             {% if product.discount_percentage > 0 %}

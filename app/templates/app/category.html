@@ -19,7 +19,7 @@
                 <span>No Image</span>
               </div>
             {% endif %}
-            {% if product.original_price and product.selling_price and product.original_price > product.selling_price %}
+            {% if product.display_original_price|default:product.original_price and product.display_selling_price|default:product.selling_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
               <div class="discount-badge">
                 SALE
               </div>
@@ -32,9 +32,9 @@
             <h3 class="product-name">{{ product.name }}</h3>
             <p class="product-description">{{ product.description|truncatewords:12|default:"Beautiful jewelry piece" }}</p>
             <div class="product-price">
-              <span class="current-price">₹{{ product.selling_price|floatformat:0 }}</span>
-              {% if product.original_price and product.original_price > product.selling_price %}
-                <span class="original-price">₹{{ product.original_price|floatformat:0 }}</span>
+              <span class="current-price">₹{{ product.display_selling_price|default:product.selling_price|floatformat:0 }}</span>
+              {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                <span class="original-price">₹{{ product.display_original_price|default:product.original_price|floatformat:0 }}</span>
               {% endif %}
             </div>
             <div class="product-actions">

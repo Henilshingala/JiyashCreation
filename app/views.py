@@ -25,7 +25,9 @@ from django.apps import apps
 
 logger = logging.getLogger(__name__)
 
-JWT_SECRET = getattr(settings, "SECRET_KEY", "change-me")
+JWT_SECRET = getattr(settings, "JWT_SECRET_KEY", None) or getattr(settings, "SECRET_KEY")
+if not JWT_SECRET or JWT_SECRET == "change-me":
+    raise ValueError("JWT_SECRET_KEY or SECRET_KEY must be set and not be 'change-me'")
 JWT_ALGORITHM = "HS256"
 JWT_EXP_DAYS = 7
 
@@ -66,6 +68,56 @@ def get_jwt_user(request):
         return User.objects.get(pk=user_id)
     except User.DoesNotExist:
         return None
+
+def get_country_multiplier(user):
+    """Get the price multiplier based on user's country"""
+    try:
+        if user and hasattr(user, 'country') and user.country:
+            user_country = user.country.lower().strip()
+            
+            # Check if user's country contains 'india' (handles 'India', 'india', 'India (IND)', etc.)
+            if 'india' in user_country:
+                multiplier_obj = CountryMultiplier.objects.filter(country_name='India').first()
+                if multiplier_obj:
+                    return multiplier_obj.multiplier
+            else:
+                # For all other countries
+                multiplier_obj = CountryMultiplier.objects.filter(country_name='Others').first()
+                if multiplier_obj:
+                    return multiplier_obj.multiplier
+        
+        # Default fallback - try to get India multiplier for users without country set
+        india_multiplier = CountryMultiplier.objects.filter(country_name='India').first()
+        if india_multiplier:
+            return india_multiplier.multiplier
+            
+        # If no India multiplier, try Others
+        others_multiplier = CountryMultiplier.objects.filter(country_name='Others').first()
+        if others_multiplier:
+            return others_multiplier.multiplier
+            
+        return Decimal('1.0')
+    except Exception as e:
+        logger.error(f"Error getting country multiplier: {e}")
+        return Decimal('1.0')
+
+def apply_country_pricing(products, user):
+    """Apply country-based pricing to products"""
+    multiplier = get_country_multiplier(user)
+    
+    # Always apply pricing, even if multiplier is 1.0, to ensure consistency
+    for product in products:
+        if hasattr(product, 'original_price') and product.original_price:
+            product.display_original_price = product.original_price * multiplier
+        else:
+            product.display_original_price = product.original_price
+            
+        if hasattr(product, 'selling_price') and product.selling_price:
+            product.display_selling_price = product.selling_price * multiplier
+        else:
+            product.display_selling_price = product.selling_price
+    
+    return products
 
 def jwt_login_required(view_func):
     @wraps(view_func)
@@ -488,6 +540,11 @@ def index(request):
         most_wishlisted = []
         has_wishlisted_products = False
     
+    # Apply country-based pricing to all products
+    user = get_jwt_user(request)
+    new_arrivals = apply_country_pricing(new_arrivals, user)
+    most_wishlisted = apply_country_pricing(most_wishlisted, user)
+    
     # When rendering products, set a tuple key for each product for wishlist check
     # Use the content_types we already have to avoid extra queries
     try:
@@ -551,6 +608,11 @@ def category_view(request, category_type, pk):
     ).order_by('-created_at')
     for product in products:
         product.product_type = category_type
+    
+    # Apply country-based pricing before pagination
+    user = get_jwt_user(request)
+    products = apply_country_pricing(products, user)
+    
     paginator = Paginator(products, 12)
     page = request.GET.get('page', 1)
     try:
@@ -558,7 +620,6 @@ def category_view(request, category_type, pk):
     except (PageNotAnInteger, EmptyPage):
         products = paginator.page(1)
     wishlist_ids = set()
-    user = get_jwt_user(request)
     if user:
         wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
     context = {
@@ -591,6 +652,11 @@ def subcategory_view(request, category_type, pk):
     ).order_by('-created_at')
     for product in products:
         product.product_type = category_type
+    
+    # Apply country-based pricing before pagination
+    user = get_jwt_user(request)
+    products = apply_country_pricing(products, user)
+    
     paginator = Paginator(products, 12)
     page = request.GET.get('page', 1)
     try:
@@ -598,7 +664,6 @@ def subcategory_view(request, category_type, pk):
     except (PageNotAnInteger, EmptyPage):
         products = paginator.page(1)
     wishlist_ids = set()
-    user = get_jwt_user(request)
     if user:
         wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
     context = {
@@ -620,6 +685,11 @@ def product_detail(request, product_type, pk):
     except product_model.DoesNotExist:
         return redirect('app:home')
     product.product_type = product_type
+    
+    # Apply country-based pricing
+    user = get_jwt_user(request)
+    apply_country_pricing([product], user)
+    
     # Map fields for template compatibility
     try:
         if not hasattr(product, 'title'):
@@ -634,13 +704,15 @@ def product_detail(request, product_type, pk):
     except Exception:
         pass
     wishlist_ids = set()
-    user = get_jwt_user(request)
     if user:
         wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
     is_in_wishlist = (ContentType.objects.get_for_model(type(product)).id, product.id) in wishlist_ids
     related_products = list(product_model.objects.filter(category=product.category, is_active=True).exclude(pk=product.pk).order_by('?')[:4])
     for related in related_products:
         related.product_type = product_type
+    
+    # Apply country pricing to related products
+    apply_country_pricing(related_products, user)
     context = {
         'product': product,
         'product_type': product_type,
@@ -684,8 +756,11 @@ def shop_all(request):
             filtered_products = []
             filters = {}
         
-        wishlist_ids = set()
+        # Apply country-based pricing to filtered products
         user = get_jwt_user(request)
+        filtered_products = apply_country_pricing(filtered_products, user)
+        
+        wishlist_ids = set()
         if user:
             wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
             
@@ -710,8 +785,8 @@ def shop_all(request):
                     'id': product.id,
                     'name': product.name,
                     'description': product.description or '',
-                    'selling_price': float(product.selling_price) if product.selling_price else 0,
-                    'original_price': float(product.original_price) if hasattr(product, 'original_price') and product.original_price else None,
+                    'selling_price': float(getattr(product, 'display_selling_price', product.selling_price)) if getattr(product, 'display_selling_price', product.selling_price) else 0,
+                    'original_price': float(getattr(product, 'display_original_price', getattr(product, 'original_price', None))) if getattr(product, 'display_original_price', getattr(product, 'original_price', None)) else None,
                     'product_type': product.product_type,
                     'image1_url': product.image1.url if product.image1 else None,
                 }
@@ -794,8 +869,8 @@ def signup(request):
                     email=email,
                     phone_number=data.get('phone'),
                     country=data.get('country'),
-                    password=password,
-                    confirm_password=data.get('confirmPassword') or password
+                    password=make_password(password),
+                    confirm_password=make_password(data.get('confirmPassword') or password)
                 )
                 token = jwt_encode({'user_id': user.id, 'email': user.email})
                 return JsonResponse({'success': True, 'message': 'Registration successful', 'token': token})
@@ -824,8 +899,9 @@ def login_view(request):
                 user = User.objects.get(email=email)
                 logger.info(f'User found: {user.email}')
                 
-                # Check the password (plain text comparison for now, but should be hashed in production)
-                if user.password != password:
+                # Check the password using Django's built-in password verification
+                from django.contrib.auth.hashers import check_password
+                if not check_password(password, user.password):
                     logger.warning(f'Invalid password for email: {email}')
                     return JsonResponse({'success': False, 'message': 'Invalid email or password'}, status=401)
             except User.DoesNotExist:
@@ -1035,19 +1111,32 @@ def update_profile(request):
         if birth_date:
             user_profile.birth_date = birth_date
         
+        # Check if country is being changed
+        old_country = user_profile.country
+        new_country = data.get('country', user_profile.country)
+        country_changed = old_country != new_country
+        
+        # Debug logging
+        logger.info(f"Profile update - Old country: '{old_country}', New country: '{new_country}', Changed: {country_changed}")
+        
         # Update address information
         user_profile.street_number = data.get('street_number', user_profile.street_number)
         user_profile.street_name = data.get('street_name', user_profile.street_name)
-        user_profile.country = data.get('country', user_profile.country)
+        user_profile.country = new_country
         user_profile.state = data.get('state', user_profile.state)
         user_profile.city = data.get('city', user_profile.city)
         user_profile.pincode = data.get('pincode', user_profile.pincode)
         
         user_profile.save()
         
+        message = 'Profile updated successfully'
+        if country_changed:
+            message += '. Please refresh the page to see updated prices for your country.'
+        
         return JsonResponse({
             'success': True,
-            'message': 'Profile updated successfully'
+            'message': message,
+            'country_changed': country_changed
         })
     except Exception as e:
         logger.error(f"Error updating profile: {str(e)}")
@@ -1185,8 +1274,16 @@ def cart_view(request):
             # Set product_type attribute for template usage
             product.product_type = product_type
             
-            # Calculate price and subtotal
-            price = Decimal(str(getattr(product, 'selling_price', 0) or 0))
+            # Apply country-based pricing
+            multiplier = get_country_multiplier(user_profile)
+            base_price = Decimal(str(getattr(product, 'selling_price', 0) or 0))
+            price = base_price * multiplier
+            
+            # Set display prices for template
+            product.display_selling_price = price
+            if hasattr(product, 'original_price') and product.original_price:
+                product.display_original_price = Decimal(str(product.original_price)) * multiplier
+            
             subtotal = price * item.quantity
             
             # Add to category-specific totals (ALWAYS, regardless of other products)
@@ -1460,45 +1557,6 @@ def privacy_policies(request):
 def terms_and_conditions(request):
     return render(request, 'app/terms_and_conditions.html')
 
-def profile(request):
-    # Render a shell; client-side JS will fetch data using JWT
-    return render(request, 'app/profile.html')
-
-@jwt_login_required
-def profile_api(request):
-    user_profile = getattr(request, 'custom_user', None)
-    wishlist_count = Wishlist.objects.filter(user=user_profile).count() if user_profile else 0
-    data = {
-        'id': user_profile.id,
-        'email': user_profile.email,
-        'first_name': user_profile.first_name,
-        'last_name': user_profile.last_name,
-        'phone_number': getattr(user_profile, 'phone_number', ''),
-        'birth_date': str(getattr(user_profile, 'birth_date', '') or ''),
-        'address': {
-            'house_number': getattr(user_profile, 'street_number', ''),
-            'apartment_society': getattr(user_profile, 'apartment_society', ''),
-            'street_name': getattr(user_profile, 'street_name', ''),
-            'city': getattr(user_profile, 'city', ''),
-            'state': getattr(user_profile, 'state', ''),
-            'country': getattr(user_profile, 'country', ''),
-            'pincode': getattr(user_profile, 'pincode', ''),
-        },
-        'wishlist_count': wishlist_count,
-    }
-    return JsonResponse({'success': True, 'user': data})
-
-@require_POST
-@csrf_exempt
-def check_email(request):
-    try:
-        data = json.loads(request.body.decode('utf-8'))
-        email = data.get('email', '').strip().lower()
-        exists = User.objects.filter(email=email).exists()
-        return JsonResponse({'exists': exists})
-    except Exception:
-        return JsonResponse({'exists': False}, status=400)
-
 def wishlist_view(request):
     # Render shell; client-side will fetch wishlist via JWT API
     return render(request, 'app/wishlist.html')
@@ -1584,168 +1642,3 @@ def cart_api(request):
         'cart_count': cart_count
     })
 
-@require_POST
-@csrf_exempt
-def add_to_cart(request, product_id, product_type=None):
-    try:
-        # Check authentication first - require JWT token
-        user_profile = get_jwt_user(request)
-        if not user_profile:
-            return JsonResponse({
-                'success': False, 
-                'message': 'Please login to add items to cart',
-                'redirect': '/login/?next=' + request.build_absolute_uri()
-            }, status=401)
-        
-        # Get quantity from request
-        quantity = 1
-        if request.content_type == 'application/json':
-            try:
-                data = json.loads(request.body.decode('utf-8'))
-                quantity = int(data.get('quantity', 1))
-            except:
-                pass
-        else:
-            quantity = int(request.POST.get('quantity', 1))
-        
-        cart_item, created, product = CartService.add_to_cart(user_profile, product_id, quantity, product_type)
-        cart_count = CartService.get_cart_count(user_profile)
-        cart_total = CartService.get_cart_total(user_profile)
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'message': f'{product.name} {"added to" if created else "updated in"} cart!',
-                'cart_count': cart_count,
-                'cart_total': str(cart_total),
-                'item_id': cart_item.id
-            })
-        return redirect(request.META.get('HTTP_REFERER', 'app:cart'))
-    except Http404:
-        return JsonResponse({'success': False, 'message': 'Product not found'}, status=404)
-    except Exception as e:
-        logger.error(f"Error adding to cart: {str(e)}")
-        return JsonResponse({'success': False, 'message': 'Error adding to cart'}, status=500)
-
-@jwt_login_required
-@require_POST
-@csrf_exempt
-def update_cart(request, item_id):
-    try:
-        user_profile = getattr(request, 'custom_user', None)
-        
-        # Get quantity from request
-        if request.content_type == 'application/json':
-            data = json.loads(request.body.decode('utf-8'))
-            quantity = int(data.get('quantity', 1))
-        else:
-            quantity = int(request.POST.get('quantity', 1))
-        
-        cart_item = CartService.update_cart_item(user_profile, item_id, quantity)
-        cart_count = CartService.get_cart_count(user_profile)
-        cart_total = CartService.get_cart_total(user_profile)
-        
-        if cart_item:
-            subtotal = getattr(cart_item.product, 'selling_price', 0) * cart_item.quantity
-        else:
-            subtotal = 0
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'message': 'Cart updated successfully',
-                'cart_count': cart_count,
-                'cart_total': str(cart_total),
-                'item_subtotal': str(subtotal),
-                'quantity': cart_item.quantity if cart_item else 0
-            })
-        return redirect('app:cart')
-    except Http404:
-        return JsonResponse({'success': False, 'message': 'Cart item not found'}, status=404)
-    except Exception as e:
-        logger.error(f"Error updating cart: {str(e)}")
-        return JsonResponse({'success': False, 'message': 'Error updating cart'}, status=500)
-
-@csrf_exempt
-def verify_reset_otp(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            otp = data.get('otp', '').strip()
-            otp_id = data.get('otp_id') or request.session.get('reset_otp_id')
-            
-            if not otp or not otp_id:
-                return JsonResponse({'success': False, 'message': 'OTP and OTP ID are required'}, status=400)
-            
-            try:
-                otp_instance = PasswordResetOTP.objects.get(id=otp_id, otp=otp)
-                
-                if not otp_instance.is_valid():
-                    return JsonResponse({'success': False, 'message': 'OTP has expired'}, status=400)
-                
-                # Mark OTP as verified
-                otp_instance.is_verified = True
-                otp_instance.save()
-                
-                # Store verified OTP ID in session for password reset
-                request.session['verified_otp_id'] = otp_instance.id
-                
-                return JsonResponse({'success': True, 'message': 'OTP verified successfully'})
-                
-            except PasswordResetOTP.DoesNotExist:
-                return JsonResponse({'success': False, 'message': 'Invalid OTP'}, status=400)
-                
-        except Exception as e:
-            logger.error(f"Error in verify_reset_otp: {str(e)}")
-            return JsonResponse({'success': False, 'message': 'An error occurred'}, status=500)
-    
-    return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
-
-@csrf_exempt
-def reset_password_with_otp(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            new_password = data.get('new_password', '')
-            confirm_password = data.get('confirm_password', '')
-            otp_id = data.get('otp_id') or request.session.get('verified_otp_id')
-            
-            if not new_password or not confirm_password:
-                return JsonResponse({'success': False, 'message': 'Both password fields are required'}, status=400)
-            
-            if new_password != confirm_password:
-                return JsonResponse({'success': False, 'message': 'Passwords do not match'}, status=400)
-            
-            if not otp_id:
-                return JsonResponse({'success': False, 'message': 'Invalid session'}, status=400)
-            
-            try:
-                otp_instance = PasswordResetOTP.objects.get(id=otp_id, is_verified=True)
-                
-                if not otp_instance.is_valid():
-                    return JsonResponse({'success': False, 'message': 'Session has expired'}, status=400)
-                
-                # Update user password
-                user = User.objects.get(email=otp_instance.email)
-                user.password = new_password  # In production, hash this password
-                user.save()
-                
-                # Delete the OTP instance
-                otp_instance.delete()
-                
-                # Clear session
-                if 'verified_otp_id' in request.session:
-                    del request.session['verified_otp_id']
-                if 'reset_otp_id' in request.session:
-                    del request.session['reset_otp_id']
-                
-                return JsonResponse({'success': True, 'message': 'Password reset successfully'})
-                
-            except (PasswordResetOTP.DoesNotExist, User.DoesNotExist):
-                return JsonResponse({'success': False, 'message': 'Invalid session'}, status=400)
-                
-        except Exception as e:
-            logger.error(f"Error in reset_password_with_otp: {str(e)}")
-            return JsonResponse({'success': False, 'message': 'An error occurred'}, status=500)
-    
-    return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)

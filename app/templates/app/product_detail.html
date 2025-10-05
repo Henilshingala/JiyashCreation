@@ -3,9 +3,21 @@
 
 {% block content %}
 <div class="product-detail-container">
+  <!-- Wishlist Heart Icon - Top Right Corner -->
+  <div class="wishlist-corner">
+    <a href="{% url 'app:add_to_wishlist' product_type=product_type pk=product.id %}"
+      class="wishlist-btn {% if is_in_wishlist %}active{% endif %}"
+      title="{% if is_in_wishlist %}Remove from Wishlist{% else %}Add to Wishlist{% endif %}">
+      <i class="{% if is_in_wishlist %}fas{% else %}far{% endif %} fa-heart"></i>
+    </a>
+  </div>
+
   <div class="product-image-section">
     {% if product.primary_image %}
-    <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" class="product-image">
+    <div class="auto-scroll-container">
+      <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" class="product-image" id="mainProductImage">
+      <div class="image-dots" id="imageDots"></div>
+    </div>
     {% else %}
     <div class="no-image-placeholder">
       <i class="fas fa-image"></i>
@@ -13,25 +25,14 @@
     </div>
     {% endif %}
 
-    {% if product.image_2 or product.image_3 or product.image_4 or product.image_5 %}
-    <div class="product-thumbnails">
-      {% if product.primary_image %}
-      <img src="{{ product.primary_image.url }}" alt="{{ product.title }}" class="thumbnail active">
-      {% endif %}
-      {% if product.image_2 %}
-      <img src="{{ product.image_2.url }}" alt="{{ product.title }} - 2" class="thumbnail">
-      {% endif %}
-      {% if product.image_3 %}
-      <img src="{{ product.image_3.url }}" alt="{{ product.title }} - 3" class="thumbnail">
-      {% endif %}
-      {% if product.image_4 %}
-      <img src="{{ product.image_4.url }}" alt="{{ product.title }} - 4" class="thumbnail">
-      {% endif %}
-      {% if product.image_5 %}
-      <img src="{{ product.image_5.url }}" alt="{{ product.title }} - 5" class="thumbnail">
-      {% endif %}
+    <!-- Hidden images for auto-scroll -->
+    <div style="display: none;" id="imageUrls">
+      {% if product.primary_image %}{{ product.primary_image.url }}{% endif %}
+      {% if product.image_2 %},{{ product.image_2.url }}{% endif %}
+      {% if product.image_3 %},{{ product.image_3.url }}{% endif %}
+      {% if product.image_4 %},{{ product.image_4.url }}{% endif %}
+      {% if product.image_5 %},{{ product.image_5.url }}{% endif %}
     </div>
-    {% endif %}
   </div>
 
   <div class="product-info-section">
@@ -49,9 +50,9 @@
       {% endif %}
 
       <div class="product-price">
-        <span class="current-price">₹{{ product.adjusted_selling_price|default:product.selling_price }}</span>
+        <span class="current-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
         {% if product.discount_percentage > 0 %}
-          <span class="original-price">₹{{ product.adjusted_original_price|default:product.original_price }}</span>
+          <span class="original-price">₹{{ product.display_original_price|default:product.original_price }}</span>
           <span class="discount-badge">{{ product.discount_percentage|floatformat:0 }}% OFF</span>
         {% endif %}
       </div>
@@ -97,41 +98,18 @@
     </div>
 
     <div class="product-actions">
-      <div class="cart-controls">
-        <div class="quantity-form">
-          <button type="button" class="quantity-btn minus">-</button>
-          <input type="number" name="quantity" value="1" min="1" max="10" class="quantity-input">
-          <button type="button" class="quantity-btn plus">+</button>
-        </div>
-        <button class="add-to-cart-btn" data-product-id="{{ product.id }}"
-          data-add-url="{% if product_type == 'gold' %}{% url 'app:add_to_cart_gold' product_id=product.id %}{% elif product_type == 'silver' %}{% url 'app:add_to_cart_silver' product_id=product.id %}{% elif product_type == 'imitation' %}{% url 'app:add_to_cart_imitation' product_id=product.id %}{% else %}{% url 'app:add_to_cart' product_id=product.id %}{% endif %}">
-          <i class="fas fa-shopping-cart"></i>
-          Add to Cart
-        </button>
+      <div class="quantity-form">
+        <button type="button" class="quantity-btn minus">-</button>
+        <input type="number" name="quantity" value="1" min="1" max="10" class="quantity-input">
+        <button type="button" class="quantity-btn plus">+</button>
       </div>
-      <div class="wishlist-wrapper">
-        <a href="{% url 'app:add_to_wishlist' product_type=product_type pk=product.id %}"
-          class="wishlist-btn {% if is_in_wishlist %}active{% endif %}"
-          title="{% if is_in_wishlist %}Remove from Wishlist{% else %}Add to Wishlist{% endif %}">
-          <i class="{% if is_in_wishlist %}fas{% else %}far{% endif %} fa-heart"></i>
-        </a>
-      </div>
+      <button class="add-to-cart-btn" data-product-id="{{ product.id }}"
+        data-add-url="{% if product_type == 'gold' %}{% url 'app:add_to_cart_gold' product_id=product.id %}{% elif product_type == 'silver' %}{% url 'app:add_to_cart_silver' product_id=product.id %}{% elif product_type == 'imitation' %}{% url 'app:add_to_cart_imitation' product_id=product.id %}{% else %}{% url 'app:add_to_cart' product_id=product.id %}{% endif %}">
+        <i class="fas fa-shopping-cart"></i>
+        Add to Cart
+      </button>
     </div>
 
-    <div class="product-meta-footer">
-      <div class="meta-item">
-        <i class="fas fa-shield-alt"></i>
-        <span>Authenticity Guaranteed</span>
-      </div>
-      <div class="meta-item">
-        <i class="fas fa-sync-alt"></i>
-        <span>7-Day Easy Returns</span>
-      </div>
-      <div class="meta-item">
-        <i class="fas fa-truck"></i>
-        <span>Free Shipping</span>
-      </div>
-    </div>
   </div>
 </div>
 <style>
@@ -171,61 +149,77 @@
     margin: 40px auto;
     padding: 24px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 30px;
     background: #ffffff;
     border-radius: 16px;
     box-shadow: var(--shadow);
     animation: fadeInUp .5s ease both;
+    align-items: start;
+    position: relative;
+  }
+
+  /* Wishlist Heart Icon - Top Right Corner */
+  .wishlist-corner {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
   }
 
   .product-image-section {
     position: relative;
   }
 
+  .auto-scroll-container {
+    position: relative;
+    width: 100%;
+    height: 520px;
+    background: #f8fafc;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+
   .product-image {
     width: 100%;
-    height: auto;
-    max-height: 520px;
-    object-fit: contain;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    transition: transform .35s ease, opacity .15s ease;
-  }
-
-  .product-image-section:hover .product-image {
-    transform: scale(1.01);
-  }
-
-  .product-thumbnails {
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 12px;
-  }
-
-  .product-thumbnails .thumbnail {
-    width: 100%;
-    height: 120px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    background: #f1f5f9;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .image-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(45, 90, 61, 0.3);
     cursor: pointer;
-    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    transition: all 0.3s ease;
   }
 
-  .product-thumbnails .thumbnail:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
+  .dot.active {
+    background: var(--accent);
+    transform: scale(1.2);
   }
 
-  .product-thumbnails .thumbnail.active {
-    border-color: var(--primary-color);
+  .dot:hover {
+    background: var(--accent);
+    transform: scale(1.1);
   }
 
   .product-info-section {
-    padding: 20px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: fit-content;
   }
 
   .product-title {
@@ -239,11 +233,11 @@
   .product-meta {
     color: var(--muted);
     font-size: 14px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .product-category {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     font-size: 16px;
   }
 
@@ -306,11 +300,11 @@
   /* Stronger specificity to ensure it applies */
   .product-info-section .product-description {
     position: relative;
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: 15px;
+    line-height: 1.6;
     color: #334155;
-    margin-bottom: 32px;
-    padding: 22px 24px 22px 24px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
     background: linear-gradient(180deg, var(--bg-soft) 0%, #eef2f7 100%);
     border-radius: 12px;
     border-left: 6px solid var(--accent);
@@ -331,7 +325,9 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    align-items: stretch;
+    align-items: center;
+    margin-top: auto;
+    text-align: center;
   }
 
   .wishlist-btn {
@@ -442,21 +438,16 @@
     }
   }
 
-  .cart-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
-  }
-
   .quantity-form {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 12px;
     background: #f8f9fa;
-    padding: 8px;
-    border-radius: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    width: fit-content;
+    margin: 0 auto;
   }
 
   .quantity-btn {
@@ -494,7 +485,7 @@
     background: linear-gradient(135deg, var(--accent) 0%, #1e3d28 100%);
     color: #fff;
     border: none;
-    padding: 16px 32px;
+    padding: 16px 40px;
     border-radius: 50px;
     font-size: 16px;
     font-weight: 700;
@@ -505,6 +496,8 @@
     gap: 8px;
     transition: all 0.25s ease;
     box-shadow: 0 6px 18px rgba(45, 90, 61, 0.3);
+    width: 100%;
+    max-width: 280px;
   }
 
   .add-to-cart-btn:hover {
@@ -519,10 +512,6 @@
     transform: none;
   }
 
-  .wishlist-wrapper {
-    display: flex;
-    justify-content: center;
-  }
 
   .update-btn {
     background: var(--accent);
@@ -574,38 +563,15 @@
   }
 
   .login-prompt-btn:hover {
-    transform: translateY(-2px);
     box-shadow: 0 10px 26px rgba(108, 117, 125, 0.4);
     background: linear-gradient(135deg, #495057 0%, #343a40 100%);
-  }
-
-  /* Meta footer chips */
-  .product-meta-footer {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-top: 18px;
-  }
-
-  .product-meta-footer .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: #f1f5f9;
-    color: #0f172a;
-    border: 1px solid rgba(2, 6, 23, 0.06);
-  }
-
-  .product-meta-footer .meta-item i {
-    color: var(--accent);
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
     .product-detail-container {
       max-width: 900px;
       gap: 30px;
+      padding: 16px;
     }
 
     .product-title {
@@ -696,71 +662,6 @@
     });
   });
 
-  // Cart quantity AJAX update matching JSON body expected by view
-  document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('.quantity-form');
-    const minus = form ? form.querySelector('.minus') : null;
-    const plus = form ? form.querySelector('.plus') : null;
-    const qty = form ? form.querySelector('input[name="quantity"]') : null;
-    const updateBtn = form ? form.querySelector('.js-update-cart') : null;
-
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-
-    function setVal(v) { if (!qty) return; qty.value = Math.max(1, parseInt(v || 1, 10)); }
-    if (minus && qty) minus.addEventListener('click', () => setVal((parseInt(qty.value || 1, 10) - 1)));
-    if (plus && qty) plus.addEventListener('click', () => setVal((parseInt(qty.value || 1, 10) + 1)));
-
-    async function postJSON(url, body) {
-      const token = localStorage.getItem('jwt_token');
-      if (!token) {
-        alert('Please login to add items to cart');
-        window.location.href = '/login/?next=' + encodeURIComponent(window.location.href);
-        return;
-      }
-
-      fetch(`/cart/add/${productId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ quantity: quantity })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Update cart count in header
-            const cartCountEl = document.getElementById('cartCount');
-            if (cartCountEl && data.cart_count !== undefined) {
-              cartCountEl.textContent = data.cart_count;
-            }
-
-            // Show success message
-            alert(data.message || 'Product added to cart!');
-
-            // Redirect to cart page
-            window.location.href = '/cart/';
-          } else {
-            if (data.redirect) {
-              // Authentication required - redirect to login
-              alert(data.message || 'Please login to add items to cart');
-              window.location.href = data.redirect;
-            } else {
-              alert(data.message || 'Failed to add product to cart');
-            }
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred while adding to cart');
-        });
-    }
-  });
 
   // Add to Cart functionality
   document.addEventListener('DOMContentLoaded', function () {
@@ -830,15 +731,32 @@
             showNotification(data.message, 'success');
 
             // Update cart count in header immediately
-            if (window.updateCartCount) {
-              window.updateCartCount().then(() => {
-                // Redirect to cart page after cart count is updated
+            if (data.cart_count !== undefined) {
+              updateCartCount(data.cart_count);
+            }
+
+            // Use global updateCartCount if available, otherwise use local function
+            if (window.updateCartCount && typeof window.updateCartCount === 'function') {
+              try {
+                const result = window.updateCartCount();
+                if (result && typeof result.then === 'function') {
+                  result.then(() => {
+                    setTimeout(() => {
+                      window.location.href = '/cart/';
+                    }, 800);
+                  });
+                } else {
+                  setTimeout(() => {
+                    window.location.href = '/cart/';
+                  }, 800);
+                }
+              } catch (e) {
                 setTimeout(() => {
                   window.location.href = '/cart/';
                 }, 800);
-              });
+              }
             } else {
-              // Fallback redirect if updateCartCount is not available
+              // Fallback redirect
               setTimeout(() => {
                 window.location.href = '/cart/';
               }, 800);
@@ -858,18 +776,41 @@
     }
 
     function updateCartCount(count) {
-      const cartCountElements = document.querySelectorAll('.cart-count, .header-cart-count');
-      cartCountElements.forEach(element => {
-        element.textContent = count;
-        if (count > 0) {
-          element.style.display = 'inline';
-          // Add pop animation
-          element.style.transform = 'scale(1.2)';
-          setTimeout(() => {
-            element.style.transform = 'scale(1)';
-          }, 200);
-        }
+      // Try multiple possible selectors for cart count elements
+      const possibleSelectors = [
+        '.cart-count',
+        '.header-cart-count', 
+        '#cartCount',
+        '.cart-badge',
+        '.nav-cart-count',
+        '[data-cart-count]'
+      ];
+      
+      let updated = false;
+      possibleSelectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+          element.textContent = count;
+          updated = true;
+          if (count > 0) {
+            element.style.display = 'flex';
+            element.style.visibility = 'visible';
+            // Add pop animation
+            element.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+              element.style.transform = 'scale(1)';
+            }, 200);
+          } else {
+            element.style.display = 'none';
+          }
+        });
       });
+      
+      // Log for debugging
+      if (!updated) {
+        console.log('Cart count elements not found. Available elements:', 
+          document.querySelectorAll('[class*="cart"], [id*="cart"], [class*="Cart"], [id*="Cart"]'));
+      }
     }
 
     function showNotification(message, type = 'success') {
@@ -919,36 +860,89 @@
     }
   });
 
-  // Interactive Image Gallery
+  // Auto-scrolling Image Gallery
   document.addEventListener('DOMContentLoaded', function () {
-    const mainImage = document.querySelector('.product-image');
-    const thumbnails = document.querySelectorAll('.thumbnail');
+    const mainImage = document.getElementById('mainProductImage');
+    const imageUrlsElement = document.getElementById('imageUrls');
+    const dotsContainer = document.getElementById('imageDots');
+    
+    if (!mainImage || !imageUrlsElement) return;
 
-    if (!mainImage || thumbnails.length === 0) return;
+    // Get all image URLs
+    const imageUrlsText = imageUrlsElement.textContent.trim();
+    const imageUrls = imageUrlsText ? imageUrlsText.split(',').filter(url => url.trim()) : [];
+    
+    if (imageUrls.length <= 1) return; // No need for auto-scroll if only one image
 
-    thumbnails.forEach(thumbnail => {
-      thumbnail.addEventListener('click', function () {
-        // Get clicked thumbnail src
-        const clickedSrc = this.src;
+    let currentIndex = 0;
+    let autoScrollInterval;
+    let isPaused = false;
 
-        // Don't do anything if clicking the same image
-        if (mainImage.src === clickedSrc) return;
+    // Create dots
+    imageUrls.forEach((_, index) => {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (index === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goToImage(index));
+      dotsContainer.appendChild(dot);
+    });
 
-        // Add fade effect to main image
-        mainImage.style.opacity = '0';
+    const dots = dotsContainer.querySelectorAll('.dot');
 
-        setTimeout(() => {
-          // Only change the main image, don't swap
-          mainImage.src = clickedSrc;
+    function goToImage(index) {
+      if (index === currentIndex) return;
+      
+      mainImage.style.opacity = '0';
+      
+      setTimeout(() => {
+        mainImage.src = imageUrls[index].trim();
+        currentIndex = index;
+        
+        // Update dots
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+        
+        mainImage.style.opacity = '1';
+      }, 250);
+    }
 
-          // Update active state
-          thumbnails.forEach(thumb => thumb.classList.remove('active'));
-          this.classList.add('active');
+    function nextImage() {
+      if (isPaused) return;
+      const nextIndex = (currentIndex + 1) % imageUrls.length;
+      goToImage(nextIndex);
+    }
 
-          // Fade back in
-          mainImage.style.opacity = '1';
-        }, 150);
-      });
+    function startAutoScroll() {
+      autoScrollInterval = setInterval(nextImage, 3000); // Change image every 3 seconds
+    }
+
+    function stopAutoScroll() {
+      clearInterval(autoScrollInterval);
+    }
+
+    // Start auto-scroll
+    startAutoScroll();
+
+    // Pause on hover
+    mainImage.addEventListener('mouseenter', () => {
+      isPaused = true;
+      stopAutoScroll();
+    });
+
+    mainImage.addEventListener('mouseleave', () => {
+      isPaused = false;
+      startAutoScroll();
+    });
+
+    // Also pause when hovering over dots
+    dotsContainer.addEventListener('mouseenter', () => {
+      isPaused = true;
+      stopAutoScroll();
+    });
+
+    dotsContainer.addEventListener('mouseleave', () => {
+      isPaused = false;
+      startAutoScroll();
     });
   });
 </script>

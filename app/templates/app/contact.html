@@ -508,10 +508,77 @@
       flex-direction: column;
       text-align: center;
       gap: clamp(10px, 3vw, 15px);
+      padding: clamp(16px, 4vw, 20px);
     }
 
     .method-icon {
       align-self: center;
+      font-size: clamp(28px, 7vw, 32px);
+    }
+    
+    .method-details h3 {
+      font-size: clamp(16px, 4vw, 18px);
+      margin-bottom: clamp(6px, 1.5vw, 8px);
+    }
+    
+    .method-details p {
+      font-size: clamp(14px, 3.5vw, 16px);
+      margin-bottom: clamp(4px, 1vw, 5px);
+    }
+    
+    .method-note {
+      font-size: clamp(12px, 3vw, 14px);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: clamp(14px, 3.5vw, 16px);
+      font-size: clamp(15px, 4vw, 16px);
+      border-radius: clamp(8px, 2vw, 12px);
+    }
+    
+    .form-group label {
+      font-size: clamp(14px, 3.5vw, 16px);
+      margin-bottom: clamp(10px, 2.5vw, 12px);
+    }
+    
+    .submit-btn {
+      padding: clamp(16px, 4vw, 18px) clamp(28px, 6vw, 32px);
+      font-size: clamp(16px, 4vw, 18px);
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+    
+    .checkbox-label {
+      font-size: clamp(13px, 3.5vw, 14px);
+      gap: clamp(10px, 2.5vw, 12px);
+    }
+    
+    .faq-link {
+      padding: clamp(14px, 3.5vw, 16px) clamp(28px, 6vw, 32px);
+      font-size: clamp(15px, 4vw, 16px);
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+  }
+
+  /* Touch-friendly enhancements */
+  @media (hover: none) and (pointer: coarse) {
+    .submit-btn, .faq-link {
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      min-height: 48px;
+    }
+    
+    .checkbox-label input[type="checkbox"] {
+      min-width: 20px;
+      min-height: 20px;
     }
   }
 

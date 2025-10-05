@@ -553,21 +553,65 @@ async function handleFormSubmit(e) {
     const result = await response.json();
 
     if (result.success) {
-      showToast('Profile updated successfully!', 'success');
+      let message = result.message || 'Profile updated successfully!';
+      showToast(message, 'success');
       
       // Check if there's a next parameter in URL
       const urlParams = new URLSearchParams(window.location.search);
       const next = urlParams.get('next');
       
-      setTimeout(() => {
-        if (next === 'checkout') {
-          // Redirect to checkout page
-          window.location.href = '{% url "app:checkout" %}';
-        } else {
-          // Default: redirect to profile page
-          window.location.href = '{% url "app:profile" %}';
-        }
-      }, 1500);
+      // If country was changed, show additional message and refresh
+      if (result.country_changed) {
+        showToast('Country updated! Refreshing to show new prices...', 'success');
+        
+        // Add a manual refresh button as backup
+        const refreshButton = document.createElement('button');
+        refreshButton.textContent = 'Click here if page doesn\'t refresh automatically';
+        refreshButton.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; padding: 10px 20px; background: #2d5a3d; color: white; border: none; border-radius: 5px; cursor: pointer;';
+        refreshButton.onclick = () => {
+          window.location.href = '{% url "app:home" %}';
+        };
+        document.body.appendChild(refreshButton);
+        
+        // Force page refresh to show new prices
+        setTimeout(() => {
+          if (next === 'checkout') {
+            // Redirect to checkout page
+            window.location.href = '{% url "app:checkout" %}';
+          } else {
+            // Try to go back to the previous page, but ensure it's not a profile page
+            const referrer = document.referrer;
+            const currentHost = window.location.origin;
+            
+            console.log('🔍 Country changed - preparing redirect...');
+            console.log('Referrer:', referrer);
+            console.log('Current host:', currentHost);
+            
+            if (referrer && 
+                referrer.startsWith(currentHost) && 
+                !referrer.includes('/profile') && 
+                !referrer.includes('/login') && 
+                !referrer.includes('/signup')) {
+              console.log('✅ Redirecting to referrer:', referrer);
+              window.location.href = referrer;
+            } else {
+              // Fallback: go to home page to see updated prices
+              console.log('✅ Redirecting to home page');
+              window.location.href = '{% url "app:home" %}';
+            }
+          }
+        }, 3000); // Increased delay to ensure user sees the message
+      } else {
+        setTimeout(() => {
+          if (next === 'checkout') {
+            // Redirect to checkout page
+            window.location.href = '{% url "app:checkout" %}';
+          } else {
+            // Default: redirect to profile page
+            window.location.href = '{% url "app:profile" %}';
+          }
+        }, 1500);
+      }
     } else {
       showToast(result.message || 'Failed to update profile', 'error');
     }
