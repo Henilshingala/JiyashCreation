@@ -72,37 +72,26 @@ def get_jwt_user(request):
 def get_country_multiplier(user):
     """Get the price multiplier based on user's country"""
     try:
-        # Debug logging
-        logger.info(f"Getting country multiplier for user: {user.email if user else 'None'}")
-        
         if user and hasattr(user, 'country') and user.country:
             user_country = user.country.lower().strip()
-            logger.info(f"User country: '{user_country}'")
             
             # Check if user's country contains 'india' (handles 'India', 'india', 'India (IND)', etc.)
             if 'india' in user_country:
-                logger.info("User is from India - using India multiplier")
                 multiplier_obj = CountryMultiplier.objects.filter(country_name='India').first()
                 if multiplier_obj:
-                    logger.info(f"India multiplier: {multiplier_obj.multiplier}")
                     return multiplier_obj.multiplier
             else:
                 # For all other countries
-                logger.info("User is from other country - using Others multiplier")
                 multiplier_obj = CountryMultiplier.objects.filter(country_name='Others').first()
                 if multiplier_obj:
-                    logger.info(f"Others multiplier: {multiplier_obj.multiplier}")
                     return multiplier_obj.multiplier
         
         # Default fallback - for users without country set, use India multiplier
-        logger.info("No country set for user - defaulting to India multiplier")
         india_multiplier = CountryMultiplier.objects.filter(country_name='India').first()
         if india_multiplier:
-            logger.info(f"Default India multiplier: {india_multiplier.multiplier}")
             return india_multiplier.multiplier
             
         # Final fallback
-        logger.warning("No multipliers found in database - using 1.0")
         return Decimal('1.0')
     except Exception as e:
         logger.error(f"Error getting country multiplier: {e}")
@@ -110,14 +99,7 @@ def get_country_multiplier(user):
 
 def apply_country_pricing(products, user):
     """Apply country-based pricing to products"""
-    logger.info(f"=== PRICING DEBUG ===")
-    logger.info(f"User passed to apply_country_pricing: {user.email if user else 'None (Guest)'}")
-    if user:
-        logger.info(f"User country: {user.country}")
-    
     multiplier = get_country_multiplier(user)
-    logger.info(f"Final multiplier applied: {multiplier}")
-    logger.info(f"=== END PRICING DEBUG ===")
     
     # Always apply pricing, even if multiplier is 1.0, to ensure consistency
     for product in products:
@@ -1035,14 +1017,9 @@ def login_view(request):
                 logger.info(f'User found: {user.email}')
                 
                 # Check the password using Django's built-in password verification
-                logger.info(f'Checking password for user: {email}')
-                logger.info(f'Stored password hash length: {len(user.password)}')
-                logger.info(f'Password starts with: {user.password[:20]}...')
-                
                 if not check_password(password, user.password):
                     logger.warning(f'Invalid password for email: {email}')
-                    logger.warning(f'Password verification failed - hash may be corrupted')
-                    return JsonResponse({'success': False, 'message': 'Invalid email or password. Try creating a new account or contact support.'}, status=401)
+                    return JsonResponse({'success': False, 'message': 'Invalid email or password'}, status=401)
             except User.DoesNotExist:
                 logger.warning(f'User not found with email: {email}')
                 return JsonResponse({'success': False, 'message': 'Invalid email or password'}, status=401)
@@ -1254,8 +1231,6 @@ def update_profile(request):
         new_country = data.get('country', user_profile.country)
         country_changed = old_country != new_country
         
-        # Debug logging
-        logger.info(f"Profile update - Old country: '{old_country}', New country: '{new_country}', Changed: {country_changed}")
         
         # Update address information
         user_profile.street_number = data.get('street_number', user_profile.street_number)

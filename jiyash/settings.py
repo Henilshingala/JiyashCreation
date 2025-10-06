@@ -1,20 +1,15 @@
 from pathlib import Path
 import os
-try:
-    from decouple import config
-except ImportError:
-    # Fallback if python-decouple is not installed
-    config = os.environ.get
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='')
-if not SECRET_KEY:
-    raise ValueError('SECRET_KEY environment variable must be set. Please create a .env file from .env.example')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'jiyash-secure-key-2024-a8b9c7d2e5f6g8h1i3j4k6l7m9n0p2q4r6s8t1u3v5w7x9y2z4'
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -114,52 +109,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ADMIN_SITE_HEADER = "JiyashCreation"
 ADMIN_SITE_TITLE = "Jiyash Admin"
 ADMIN_INDEX_TITLE = "Admin Panel"
-
-# Logging Configuration
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'formatter': 'verbose',
-        },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
-    },
-    'root': {
-        'handlers': ['console', 'file'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'app': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
-}
-
-# Create logs directory if it doesn't exist
-LOGS_DIR = BASE_DIR / 'logs'
-LOGS_DIR.mkdir(exist_ok=True)
