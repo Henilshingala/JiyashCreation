@@ -1712,5 +1712,36 @@ window.addEventListener('scroll', function() {
 <!-- Global Wishlist Functionality -->
 <script src="{% static 'app/js/wishlist.js' %}"></script>
 
+<!-- Global Wishlist Styles -->
+<style>
+.wish-icon, .wishlist-btn {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.wish-icon:hover, .wishlist-btn:hover {
+  transform: scale(1.1);
+}
+
+.wish-icon.wishlisted i, .wishlist-btn.wishlisted i {
+  color: #dc3545 !important;
+}
+
+.wish-icon[aria-pressed="true"] i, .wishlist-btn[aria-pressed="true"] i {
+  color: #dc3545 !important;
+}
+
+/* Animation for wishlist changes */
+@keyframes wishlistPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.wish-icon.updating, .wishlist-btn.updating {
+  animation: wishlistPulse 0.3s ease-in-out;
+}
+</style>
+
 </body>
 </html>

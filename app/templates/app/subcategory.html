@@ -22,13 +22,13 @@
             <p class="product-description">{{ product.description|truncatewords:15 }}</p>
             <div class="product-price">
               <span class="current-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
-              {% if product.discount_percentage > 0 %}
+              {% if product.display_discount_percentage|default:product.discount_percentage > 0 %}
                 <span class="original-price">₹{{ product.display_original_price|default:product.original_price }}</span>
               {% endif %}
             </div>
-            {% if product.discount_percentage > 0 %}
+            {% if product.display_discount_percentage|default:product.discount_percentage > 0 %}
               <div class="discount-info">
-                <span class="discount-badge">{{ product.discount_percentage|floatformat:0 }}% OFF</span>
+                <span class="discount-badge">{{ product.display_discount_percentage|default:product.discount_percentage|floatformat:0 }}% OFF</span>
               </div>
             {% endif %}
             <div class="product-actions">

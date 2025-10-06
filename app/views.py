@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Sum
 from django.db import transaction, models
 from django.utils import timezone
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from decimal import Decimal
 import json
 import logging
@@ -26,8 +26,8 @@ from django.apps import apps
 logger = logging.getLogger(__name__)
 
 JWT_SECRET = getattr(settings, "JWT_SECRET_KEY", None) or getattr(settings, "SECRET_KEY")
-if not JWT_SECRET or JWT_SECRET == "change-me":
-    raise ValueError("JWT_SECRET_KEY or SECRET_KEY must be set and not be 'change-me'")
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET_KEY or SECRET_KEY must be set")
 JWT_ALGORITHM = "HS256"
 JWT_EXP_DAYS = 7
 
@@ -72,30 +72,37 @@ def get_jwt_user(request):
 def get_country_multiplier(user):
     """Get the price multiplier based on user's country"""
     try:
+        # Debug logging
+        logger.info(f"Getting country multiplier for user: {user.email if user else 'None'}")
+        
         if user and hasattr(user, 'country') and user.country:
             user_country = user.country.lower().strip()
+            logger.info(f"User country: '{user_country}'")
             
             # Check if user's country contains 'india' (handles 'India', 'india', 'India (IND)', etc.)
             if 'india' in user_country:
+                logger.info("User is from India - using India multiplier")
                 multiplier_obj = CountryMultiplier.objects.filter(country_name='India').first()
                 if multiplier_obj:
+                    logger.info(f"India multiplier: {multiplier_obj.multiplier}")
                     return multiplier_obj.multiplier
             else:
                 # For all other countries
+                logger.info("User is from other country - using Others multiplier")
                 multiplier_obj = CountryMultiplier.objects.filter(country_name='Others').first()
                 if multiplier_obj:
+                    logger.info(f"Others multiplier: {multiplier_obj.multiplier}")
                     return multiplier_obj.multiplier
         
-        # Default fallback - try to get India multiplier for users without country set
+        # Default fallback - for users without country set, use India multiplier
+        logger.info("No country set for user - defaulting to India multiplier")
         india_multiplier = CountryMultiplier.objects.filter(country_name='India').first()
         if india_multiplier:
+            logger.info(f"Default India multiplier: {india_multiplier.multiplier}")
             return india_multiplier.multiplier
             
-        # If no India multiplier, try Others
-        others_multiplier = CountryMultiplier.objects.filter(country_name='Others').first()
-        if others_multiplier:
-            return others_multiplier.multiplier
-            
+        # Final fallback
+        logger.warning("No multipliers found in database - using 1.0")
         return Decimal('1.0')
     except Exception as e:
         logger.error(f"Error getting country multiplier: {e}")
@@ -103,19 +110,40 @@ def get_country_multiplier(user):
 
 def apply_country_pricing(products, user):
     """Apply country-based pricing to products"""
+    logger.info(f"=== PRICING DEBUG ===")
+    logger.info(f"User passed to apply_country_pricing: {user.email if user else 'None (Guest)'}")
+    if user:
+        logger.info(f"User country: {user.country}")
+    
     multiplier = get_country_multiplier(user)
+    logger.info(f"Final multiplier applied: {multiplier}")
+    logger.info(f"=== END PRICING DEBUG ===")
     
     # Always apply pricing, even if multiplier is 1.0, to ensure consistency
     for product in products:
-        if hasattr(product, 'original_price') and product.original_price:
+        # Handle original_price - check if it exists and is not None
+        if hasattr(product, 'original_price') and product.original_price is not None:
             product.display_original_price = product.original_price * multiplier
         else:
-            product.display_original_price = product.original_price
+            product.display_original_price = getattr(product, 'original_price', None)
             
-        if hasattr(product, 'selling_price') and product.selling_price:
+        # Handle selling_price - check if it exists and is not None
+        if hasattr(product, 'selling_price') and product.selling_price is not None:
             product.display_selling_price = product.selling_price * multiplier
         else:
-            product.display_selling_price = product.selling_price
+            product.display_selling_price = getattr(product, 'selling_price', None)
+        
+        # Calculate display discount percentage based on adjusted prices
+        try:
+            if (product.display_original_price and product.display_selling_price and 
+                product.display_original_price > product.display_selling_price):
+                discount = ((product.display_original_price - product.display_selling_price) / 
+                           product.display_original_price) * 100
+                product.display_discount_percentage = int(discount)
+            else:
+                product.display_discount_percentage = 0
+        except Exception:
+            product.display_discount_percentage = 0
     
     return products
 
@@ -305,14 +333,22 @@ def get_product_model_and_instance(product_type, pk):
 def add_to_wishlist(request, product_type, pk):
     try:
         user_profile = getattr(request, 'custom_user', None)
+        logger.info(f"Add to wishlist request: user={user_profile.id if user_profile else 'None'}, product_type={product_type}, pk={pk}")
+        
         model, product = get_product_model_and_instance(product_type, pk)
         if not product:
+            logger.error(f"Product not found: product_type={product_type}, pk={pk}")
             raise Http404("Product not found")
+        
+        logger.info(f"Found product: {product.name} (ID: {product.id}, Model: {model.__name__})")
+        
         from django.contrib.contenttypes.models import ContentType
         ct = ContentType.objects.get_for_model(model)
         wishlist_item, created = Wishlist.objects.get_or_create(
             user=user_profile, content_type=ct, object_id=product.id
         )
+        
+        logger.info(f"Wishlist operation: created={created}, item_id={wishlist_item.id if wishlist_item else 'None'}")
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
@@ -320,7 +356,9 @@ def add_to_wishlist(request, product_type, pk):
                 'created': created,
                 'product_id': product.id,
                 'canonical_product_id': product.id,
-                'message': f'{product.name} {"added to" if created else "already in"} wishlist!'
+                'product_type': product_type,
+                'message': f'{product.name} {"added to" if created else "already in"} wishlist!',
+                'action': 'add'
             })
         return redirect(request.META.get('HTTP_REFERER', 'app:wishlist'))
     except Http404:
@@ -335,20 +373,30 @@ def add_to_wishlist(request, product_type, pk):
 def remove_from_wishlist(request, product_type, pk):
     try:
         user_profile = getattr(request, 'custom_user', None)
+        logger.info(f"Remove from wishlist request: user={user_profile.id if user_profile else 'None'}, product_type={product_type}, pk={pk}")
+        
         model, product = get_product_model_and_instance(product_type, pk)
         if not product:
+            logger.error(f"Product not found: product_type={product_type}, pk={pk}")
             raise Http404("Product not found")
+        
+        logger.info(f"Found product: {product.name} (ID: {product.id}, Model: {model.__name__})")
+        
         from django.contrib.contenttypes.models import ContentType
         ct = ContentType.objects.get_for_model(model)
         removed_count, _ = Wishlist.objects.filter(user=user_profile, content_type=ct, object_id=product.id).delete()
         removed = removed_count > 0
+        
+        logger.info(f"Wishlist removal: removed={removed}, count={removed_count}")
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
                 'in_wishlist': False,
                 'product_id': product.id,
+                'product_type': product_type,
                 'removed': removed,
-                'message': f'{product.name} {"removed from" if removed else "not in"} wishlist!'
+                'message': f'{product.name} {"removed from" if removed else "not in"} wishlist!',
+                'action': 'remove'
             })
         return redirect(request.META.get('HTTP_REFERER', 'app:wishlist'))
     except Exception as e:
@@ -444,8 +492,8 @@ def index(request):
     for p_type, model in ProductService.PRODUCT_TYPE_MAP.items():
         if p_type not in active_types:
             continue
-        # Get products from active categories only
-        products = model.objects.filter(
+        # Get products from active categories only with optimized query
+        products = model.objects.select_related('category', 'subcategory').filter(
             is_active=True,
             category__is_active=True,
             subcategory__is_active=True,
@@ -487,7 +535,7 @@ def index(request):
         for p_type, model in ProductService.PRODUCT_TYPE_MAP.items():
             if p_type not in active_types:
                 continue
-            products = model.objects.filter(
+            products = model.objects.select_related('category', 'subcategory').filter(
                 is_active=True,
                 category__is_active=True,
                 subcategory__is_active=True,
@@ -601,7 +649,7 @@ def category_view(request, category_type, pk):
     category_model, subcategory_model = category_models[category_type]
     category = get_object_or_404(category_model, pk=pk, is_active=True)
     product_model = ProductService.PRODUCT_TYPE_MAP.get(category_type)
-    products = product_model.objects.filter(
+    products = product_model.objects.select_related('category', 'subcategory').filter(
         category=category,
         is_active=True,
         subcategory__is_active=True,
@@ -619,9 +667,27 @@ def category_view(request, category_type, pk):
         products = paginator.page(page)
     except (PageNotAnInteger, EmptyPage):
         products = paginator.page(1)
-    wishlist_ids = set()
+    wishlist_keys = set()
     if user:
-        wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
+        wishlist_keys = WishlistService.get_wishlist_product_keys_for_user_profile(user)
+    
+    # Convert wishlist keys to product IDs for template compatibility
+    wishlist_ids = set()
+    for product in products:
+        from django.contrib.contenttypes.models import ContentType
+        try:
+            # Get the model class for this product
+            if hasattr(product, 'product_type'):
+                model_class = ProductService.PRODUCT_TYPE_MAP.get(product.product_type)
+                if model_class:
+                    ct = ContentType.objects.get_for_model(model_class)
+                    key = (ct.id, product.id)
+                    if key in wishlist_keys:
+                        wishlist_ids.add(product.id)
+        except Exception as e:
+            logger.error(f"Error checking wishlist status for product {product.id}: {e}")
+            continue
+    
     context = {
         'category': category,
         'products': products,
@@ -645,7 +711,7 @@ def subcategory_view(request, category_type, pk):
     category_model, subcategory_model = category_models[category_type]
     subcategory = get_object_or_404(subcategory_model, pk=pk, is_active=True)
     product_model = ProductService.PRODUCT_TYPE_MAP.get(category_type)
-    products = product_model.objects.filter(
+    products = product_model.objects.select_related('category', 'subcategory').filter(
         subcategory=subcategory,
         is_active=True,
         category__is_active=True,
@@ -663,9 +729,27 @@ def subcategory_view(request, category_type, pk):
         products = paginator.page(page)
     except (PageNotAnInteger, EmptyPage):
         products = paginator.page(1)
-    wishlist_ids = set()
+    wishlist_keys = set()
     if user:
-        wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
+        wishlist_keys = WishlistService.get_wishlist_product_keys_for_user_profile(user)
+    
+    # Convert wishlist keys to product IDs for template compatibility
+    wishlist_ids = set()
+    for product in products:
+        from django.contrib.contenttypes.models import ContentType
+        try:
+            # Get the model class for this product
+            if hasattr(product, 'product_type'):
+                model_class = ProductService.PRODUCT_TYPE_MAP.get(product.product_type)
+                if model_class:
+                    ct = ContentType.objects.get_for_model(model_class)
+                    key = (ct.id, product.id)
+                    if key in wishlist_keys:
+                        wishlist_ids.add(product.id)
+        except Exception as e:
+            logger.error(f"Error checking wishlist status for product {product.id}: {e}")
+            continue
+    
     context = {
         'subcategory': subcategory,
         'products': products,
@@ -760,9 +844,26 @@ def shop_all(request):
         user = get_jwt_user(request)
         filtered_products = apply_country_pricing(filtered_products, user)
         
-        wishlist_ids = set()
+        wishlist_keys = set()
         if user:
-            wishlist_ids = WishlistService.get_wishlist_product_ids_for_user_profile(user)
+            wishlist_keys = WishlistService.get_wishlist_product_keys_for_user_profile(user)
+        
+        # Convert wishlist keys to product IDs for template compatibility
+        wishlist_ids = set()
+        for product in filtered_products:
+            from django.contrib.contenttypes.models import ContentType
+            try:
+                # Get the model class for this product
+                if hasattr(product, 'product_type'):
+                    model_class = ProductService.PRODUCT_TYPE_MAP.get(product.product_type)
+                    if model_class:
+                        ct = ContentType.objects.get_for_model(model_class)
+                        key = (ct.id, product.id)
+                        if key in wishlist_keys:
+                            wishlist_ids.add(product.id)
+            except Exception as e:
+                logger.error(f"Error checking wishlist status for product {product.id}: {e}")
+                continue
             
         context = {
             'products': filtered_products,
@@ -853,26 +954,52 @@ def collection_view(request, collection_type):
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
+        # Handle both JSON and form data
         try:
-            data = json.loads(request.body.decode('utf-8'))
-        except Exception:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body.decode('utf-8'))
+            else:
+                # Handle form data
+                data = {
+                    'firstName': request.POST.get('firstName', ''),
+                    'lastName': request.POST.get('lastName', ''),
+                    'email': request.POST.get('email', ''),
+                    'phone': request.POST.get('phone', ''),
+                    'country': request.POST.get('country', ''),
+                    'password': request.POST.get('password', ''),
+                    'confirmPassword': request.POST.get('confirmPassword', ''),
+                }
+        except Exception as e:
+            logger.error(f"Signup data parsing error: {str(e)}")
             return JsonResponse({'success': False, 'message': 'Invalid request format'}, status=400)
+        
         email = data.get('email', '').strip().lower()
         password = data.get('password', '')
+        confirm_password = data.get('confirmPassword', '')
+        
+        # Validation
+        if not email or not password:
+            return JsonResponse({'success': False, 'message': 'Email and password are required'}, status=400)
+        
+        if password != confirm_password:
+            return JsonResponse({'success': False, 'message': 'Passwords do not match'}, status=400)
+        
         if User.objects.filter(email=email).exists():
             return JsonResponse({'success': False, 'message': 'Email already registered'}, status=400)
+        
         try:
             with transaction.atomic():
                 user = User.objects.create(
-                    first_name=data.get('firstName') or '',
-                    last_name=data.get('lastName') or '',
+                    first_name=data.get('firstName', ''),
+                    last_name=data.get('lastName', ''),
                     email=email,
-                    phone_number=data.get('phone'),
-                    country=data.get('country'),
+                    phone_number=data.get('phone', ''),
+                    country=data.get('country', ''),
                     password=make_password(password),
-                    confirm_password=make_password(data.get('confirmPassword') or password)
+                    confirm_password=make_password(confirm_password)
                 )
                 token = jwt_encode({'user_id': user.id, 'email': user.email})
+                logger.info(f"User registered successfully: {email}")
                 return JsonResponse({'success': True, 'message': 'Registration successful', 'token': token})
         except Exception as e:
             logger.error(f"Registration error: {str(e)}")
@@ -884,9 +1011,17 @@ def login_view(request):
     
     if request.method == 'POST':
         try:
-            # Get email and password from form data
-            email = request.POST.get('loginEmail', '').strip().lower()
-            password = request.POST.get('loginPassword', '')
+            # Handle both JSON and form data
+            if request.content_type == 'application/json':
+                data = json.loads(request.body.decode('utf-8'))
+                email = data.get('email', '').strip().lower()
+                password = data.get('password', '')
+            else:
+                # Handle form data - try multiple field name variations
+                email = (request.POST.get('loginEmail') or 
+                        request.POST.get('email') or '').strip().lower()
+                password = (request.POST.get('loginPassword') or 
+                           request.POST.get('password') or '')
             
             logger.info(f'Login attempt for email: {email}')
             
@@ -900,10 +1035,14 @@ def login_view(request):
                 logger.info(f'User found: {user.email}')
                 
                 # Check the password using Django's built-in password verification
-                from django.contrib.auth.hashers import check_password
+                logger.info(f'Checking password for user: {email}')
+                logger.info(f'Stored password hash length: {len(user.password)}')
+                logger.info(f'Password starts with: {user.password[:20]}...')
+                
                 if not check_password(password, user.password):
                     logger.warning(f'Invalid password for email: {email}')
-                    return JsonResponse({'success': False, 'message': 'Invalid email or password'}, status=401)
+                    logger.warning(f'Password verification failed - hash may be corrupted')
+                    return JsonResponse({'success': False, 'message': 'Invalid email or password. Try creating a new account or contact support.'}, status=401)
             except User.DoesNotExist:
                 logger.warning(f'User not found with email: {email}')
                 return JsonResponse({'success': False, 'message': 'Invalid email or password'}, status=401)
@@ -966,8 +1105,7 @@ def forgot_password(request):
             
             return JsonResponse({
                 'success': True, 
-                'message': 'OTP sent to your email address',
-                'otp_id': otp_instance.id  # Remove this in production
+                'message': 'OTP sent to your email address'
             })
             
         except Exception as e:
@@ -1154,7 +1292,8 @@ def wishlist_api(request):
     user_profile = getattr(request, 'custom_user', None)
     items = []
     try:
-        qs = Wishlist.objects.filter(user=user_profile).order_by('-added_at')
+        # Optimize query with select_related for content_type
+        qs = Wishlist.objects.filter(user=user_profile).select_related('content_type').order_by('-added_at')
         for w in qs[:100]:
             p = w.product
             if not p:
@@ -1391,7 +1530,8 @@ def cart_api(request):
     items = []
     total = 0
     try:
-        cart_items = Cart.objects.filter(user=user_profile).order_by('-added_at')
+        # Optimize query with select_related for content_type
+        cart_items = Cart.objects.filter(user=user_profile).select_related('content_type').order_by('-added_at')
         for item in cart_items:
             product = item.product
             if not product:
@@ -1541,104 +1681,71 @@ def remove_from_cart(request, item_id):
         logger.error(f"Error removing from cart: {str(e)}")
         return JsonResponse({'success': False, 'message': 'Error removing from cart'}, status=500)
 
-# Additional view functions
-def about_us(request):
-    return render(request, 'app/about.html')
+# Duplicate functions removed - kept originals at end of file
 
-def contact(request):
-    return render(request, 'app/contact.html')
+# Duplicate wishlist functions removed
 
-def faqs(request):
-    return render(request, 'app/faqs.html')
-
-def privacy_policies(request):
-    return render(request, 'app/privacy_policies.html')
-
-def terms_and_conditions(request):
-    return render(request, 'app/terms_and_conditions.html')
-
-def wishlist_view(request):
-    # Render shell; client-side will fetch wishlist via JWT API
-    return render(request, 'app/wishlist.html')
-
-@jwt_login_required
-def wishlist_api(request):
-    user_profile = getattr(request, 'custom_user', None)
-    items = []
-    try:
-        qs = Wishlist.objects.filter(user=user_profile).order_by('-added_at')
-        for w in qs[:100]:
-            p = w.product
-            if not p:
-                continue
-            # Get the primary image (different models use different field names)
-            image_url = ''
-            if hasattr(p, 'image1') and p.image1:
-                image_url = p.image1.url
-            elif hasattr(p, 'image') and p.image:
-                image_url = p.image.url
-            
-            # Determine product type
-            product_type = 'unknown'
-            if isinstance(p, GoldProduct):
-                product_type = 'gold'
-            elif isinstance(p, SilverProduct):
-                product_type = 'silver'
-            elif isinstance(p, ImitationProduct):
-                product_type = 'imitation'
-            
-            items.append({
-                'id': p.id,
-                'name': getattr(p, 'name', ''),
-                'price': str(getattr(p, 'selling_price', 0) or 0),
-                'image': image_url,
-                'product_type': product_type,
-            })
-    except Exception as e:
-        logger.error(f"wishlist_api error: {str(e)}")
-    return JsonResponse({'success': True, 'items': items})
-
-
-@jwt_login_required
-def cart_api(request):
-    user_profile = getattr(request, 'custom_user', None)
-    items = []
-    total = 0
-    try:
-        cart_items = Cart.objects.filter(user=user_profile).order_by('-added_at')
-        for item in cart_items:
-            product = item.product
-            if not product:
-                continue
-            price = getattr(product, 'selling_price', 0) or 0
-            subtotal = price * item.quantity
-            total += subtotal
-            
-            # Get the primary image (different models use different field names)
-            image_url = ''
-            if hasattr(product, 'image1') and product.image1:
-                image_url = product.image1.url
-            elif hasattr(product, 'image') and product.image:
-                image_url = product.image.url
-            
-            items.append({
-                'id': item.id,
-                'product_id': product.id,
-                'name': getattr(product, 'name', ''),
-                'price': str(price),
-                'quantity': item.quantity,
-                'subtotal': str(subtotal),
-                'image': image_url,
-            })
-    except Exception as e:
-        logger.error(f"cart_api error: {str(e)}")
+@csrf_exempt
+def wishlist_status_api(request):
+    """API endpoint to check wishlist status for multiple products"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
     
-    cart_count = CartService.get_cart_count(user_profile)
-    return JsonResponse({
-        'success': True, 
-        'items': items, 
-        'total': str(total),
-        'count': cart_count,
-        'cart_count': cart_count
-    })
+    # Check for authentication, but don't require it
+    user_profile = get_jwt_user(request)
+    if not user_profile:
+        # Return empty wishlist status for non-authenticated users
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            product_ids = data.get('product_ids', [])
+            wishlist_status = {str(pid): False for pid in product_ids}
+            return JsonResponse({
+                'success': True,
+                'wishlist_status': wishlist_status
+            })
+        except:
+            return JsonResponse({'success': True, 'wishlist_status': {}})
+    
+    try:
+        user_profile = getattr(request, 'custom_user', None)
+        data = json.loads(request.body.decode('utf-8'))
+        product_ids = data.get('product_ids', [])
+        
+        logger.info(f"Wishlist status check for user {user_profile.id if user_profile else 'None'}, products: {product_ids}")
+        
+        if not product_ids:
+            return JsonResponse({'success': True, 'wishlist_status': {}})
+        
+        # Get all wishlist items for the user
+        wishlist_items = Wishlist.objects.filter(user=user_profile).values('content_type_id', 'object_id')
+        wishlist_keys = {(item['content_type_id'], item['object_id']) for item in wishlist_items}
+        
+        logger.info(f"User has {len(wishlist_keys)} wishlist items: {wishlist_keys}")
+        
+        # Check status for each product
+        wishlist_status = {}
+        for product_id in product_ids:
+            # Find the product in any of the product models
+            model, product = _resolve_product_by_id(product_id)
+            if product:
+                from django.contrib.contenttypes.models import ContentType
+                ct = ContentType.objects.get_for_model(model)
+                key = (ct.id, product.id)
+                is_wishlisted = key in wishlist_keys
+                wishlist_status[str(product_id)] = is_wishlisted
+                logger.info(f"Product {product_id} ({model.__name__}): key={key}, wishlisted={is_wishlisted}")
+            else:
+                wishlist_status[str(product_id)] = False
+                logger.warning(f"Product {product_id} not found")
+        
+        logger.info(f"Final wishlist status: {wishlist_status}")
+        
+        return JsonResponse({
+            'success': True,
+            'wishlist_status': wishlist_status
+        })
+    
+    except Exception as e:
+        logger.error(f"wishlist_status_api error: {str(e)}")
+        return JsonResponse({'success': False, 'message': 'Error checking wishlist status'}, status=500)
 
