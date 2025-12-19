@@ -1,0 +1,1 @@
+# Intentionally left empty. Django 3.2+ uses AppConfig by default.

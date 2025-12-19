@@ -1,0 +1,83 @@
+{% load category_filters %}
+
+<div class="category-menu">
+  {% for category in categories %}
+    {% if category.is_active %}
+      <div class="category-item">
+        <h4 class="category-title">
+          <a href="{% url 'app:category' category_type=category_type category_id=category.id %}">
+            {{ category.name }}
+          </a>
+        </h4>
+        
+        {% if category.active_subcategories %}
+          <ul class="subcategory-list">
+            {% for subcategory in category.active_subcategories %}
+              <li class="subcategory-item">
+                <a href="{% url 'app:subcategory' category_type=category_type category_id=category.id subcategory_id=subcategory.id %}">
+                  {{ subcategory.name }}
+                  <span class="product-count">
+                    ({% get_active_product_count category_type category.id subcategory.id %})
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<style>
+.category-menu {
+  padding: 16px 0;
+}
+
+.category-item {
+  margin-bottom: 20px;
+}
+
+.category-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.category-title a {
+  color: #111827;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.category-title a:hover {
+  color: #6b7280;
+}
+
+.subcategory-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.subcategory-item {
+  margin-bottom: 4px;
+}
+
+.subcategory-item a {
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.15s ease;
+}
+
+.subcategory-item a:hover {
+  color: #111827;
+}
+
+.product-count {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+</style>

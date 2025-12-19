@@ -1,0 +1,689 @@
+{% extends "app/base.html" %}
+{% block title %}Frequently Asked Questions - Jiyash Creation{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Frequently Asked Questions</h1>
+  <p>Find answers to common questions about our products and services</p>
+</div>
+
+<div class="faq-container">
+  <div class="faq-navigation">
+    <h3>Quick Navigation</h3>
+    <div class="nav-buttons">
+      <button class="nav-btn active" data-category="general">General</button>
+      <button class="nav-btn" data-category="products">Products</button>
+      <button class="nav-btn" data-category="orders">Orders</button>
+      <button class="nav-btn" data-category="shipping">Shipping</button>
+      <button class="nav-btn" data-category="care">Care & Maintenance</button>
+    </div>
+  </div>
+
+  <div class="faq-content">
+    <!-- General Questions -->
+    <div class="faq-category active" id="general">
+      <h2>General Questions</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>What is Jiyash Creation?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Jiyash Creation is a handcrafted jewelry brand that specializes in creating unique, traditional, and contemporary jewelry pieces. We work with skilled artisans to bring you beautiful, high-quality jewelry that tells a story.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Where are your products made?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>All our jewelry is handcrafted in our workshop located in Surat, India. We work directly with local artisans who have years of experience in traditional jewelry making techniques.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Do you offer custom designs?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes! We love creating custom pieces. You can contact us with your design ideas, and our team will work with you to bring your vision to life. Custom orders typically take 2-3 weeks to complete.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Questions -->
+    <div class="faq-category" id="products">
+      <h2>Product Information</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>How do I know what size to order?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>We provide detailed sizing information for each product. For rings, we offer a printable ring sizer. For necklaces and bracelets, we provide measurements in the product description. If you're unsure, feel free to contact us for guidance.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Are your products hypoallergenic?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Most of our products pieces are hypoallergenic. However, if you have sensitive skin, we recommend testing a small piece first or choosing our nickel-free options. Contact us for specific recommendations.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Can I see more photos of a product?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Absolutely! We provide multiple high-quality images for each product. If you need additional angles or close-up shots, just let us know and we'll be happy to send them to you.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Questions -->
+    <div class="faq-category" id="orders">
+      <h2>Orders & Payment</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>What payment methods do you accept?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>We accept all major credit cards, debit cards, UPI, and net banking. All payments are processed securely through our payment gateway.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>How long does it take to process my order?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Most orders are processed and shipped within 1-2 business days. Custom orders may take longer. You'll receive a confirmation email with tracking information once your order ships.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Can I cancel or modify my order?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>You can cancel or modify your order within 2 hours of placing it by contacting our customer service team. After that, the order will be processed and cannot be changed.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Do you offer bulk discounts?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes! We offer special pricing for bulk orders and wholesale customers. Contact us directly for pricing and minimum order quantities.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Questions -->
+    <div class="faq-category" id="shipping">
+      <h2>Shipping & Delivery</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>How much does shipping cost?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>We offer free shipping on all orders above ₹1,500. For orders below this amount, shipping costs ₹99. We also offer express shipping for an additional ₹150.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>How long does delivery take?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Standard delivery takes 3-5 business days within India. Express delivery takes 1-2 business days. International shipping takes 7-14 business days depending on the destination.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Do you ship internationally?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes, we ship to most countries worldwide. International shipping costs and delivery times vary by location. Contact us for specific rates to your country.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Care Questions -->
+    <div class="faq-category" id="care">
+      <h2>Care & Maintenance</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>How do I clean my jewelry?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>For sterling silver, use a soft cloth and mild soap. For brass and copper, use a specialized cleaner. Avoid harsh chemicals and store your jewelry in a cool, dry place when not wearing it.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>How can I prevent tarnishing?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Store your jewelry in airtight containers or anti-tarnish bags. Avoid exposure to moisture, perfume, and chemicals. Regular cleaning and proper storage will help maintain the shine.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <h3>Can I wear my jewelry while swimming?</h3>
+          <span class="toggle-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>We recommend removing your jewelry before swimming, showering, or exercising. Chlorine, salt water, and sweat can damage the metal and stones over time.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="contact-cta">
+  <h2>Still have questions?</h2>
+  <p>Can't find the answer you're looking for? Our customer service team is here to help!</p>
+  <a href="{% url 'app:contact' %}" class="contact-btn">Contact Us</a>
+</div>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+  }
+
+  .page-header h1 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .page-header p {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .faq-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 50px;
+    margin-bottom: 60px;
+  }
+
+  .faq-navigation {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+
+  .faq-navigation h3 {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  .nav-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .nav-btn {
+    padding: 12px 20px;
+    border: 2px solid var(--border);
+    background: white;
+    color: #666;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .nav-btn:hover,
+  .nav-btn.active {
+    background: var(--accent);
+    color: var(--primary);
+    border-color: var(--accent);
+  }
+
+  .faq-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .faq-category {
+    display: none;
+  }
+
+  .faq-category.active {
+    display: block;
+  }
+
+  .faq-category h2 {
+    color: var(--primary);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .faq-item {
+    margin-bottom: 25px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .faq-question:hover {
+    background: #e9ecef;
+  }
+
+  .faq-question h3 {
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .toggle-icon {
+    font-size: 24px;
+    color: var(--primary);
+    font-weight: 700;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item.active .toggle-icon {
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 20px;
+    max-height: 200px;
+  }
+
+  .faq-answer p {
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .contact-cta {
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 60px 40px;
+    border-radius: 12px;
+    margin: 0 20px 40px;
+  }
+
+  .contact-cta h2 {
+    color: var(--primary);
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .contact-cta p {
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .contact-btn {
+    display: inline-block;
+    background: transparent;
+    color: var(--primary);
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary);
+  }
+
+  .contact-btn:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (max-width: 1024px) {
+    .faq-container {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .faq-navigation {
+      position: static;
+      order: 2;
+    }
+
+    .nav-buttons {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  /* Enhanced Mobile Responsive Design */
+  @media (max-width: 480px) {
+    .page-header {
+      margin-bottom: clamp(25px, 5vw, 30px);
+      padding: clamp(30px, 6vw, 40px) clamp(15px, 4vw, 20px);
+      border-radius: clamp(8px, 2vw, 12px);
+    }
+
+    .page-header h1 {
+      font-size: clamp(24px, 6vw, 28px);
+      margin-bottom: clamp(12px, 3vw, 15px);
+    }
+
+    .page-header p {
+      font-size: clamp(14px, 4vw, 16px);
+    }
+
+    .faq-container {
+      padding: 0 clamp(12px, 3vw, 15px);
+      gap: clamp(20px, 5vw, 30px);
+    }
+
+    .faq-navigation {
+      padding: clamp(20px, 5vw, 30px);
+      border-radius: clamp(8px, 2vw, 12px);
+      order: 2;
+      position: static;
+    }
+
+    .faq-navigation h3 {
+      font-size: clamp(16px, 4vw, 18px);
+      margin-bottom: clamp(20px, 4vw, 25px);
+    }
+
+    .nav-buttons {
+      flex-direction: column;
+      gap: clamp(8px, 2vw, 12px);
+    }
+
+    .nav-btn {
+      padding: clamp(14px, 3.5vw, 16px) clamp(16px, 4vw, 20px);
+      font-size: clamp(14px, 3.5vw, 16px);
+      border-radius: clamp(6px, 1.5vw, 8px);
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+
+    .faq-content {
+      padding: clamp(25px, 5vw, 30px) clamp(15px, 4vw, 20px);
+      border-radius: clamp(8px, 2vw, 12px);
+      order: 1;
+    }
+
+    .faq-category h2 {
+      font-size: clamp(20px, 5vw, 24px);
+      margin-bottom: clamp(25px, 5vw, 30px);
+      padding-bottom: clamp(12px, 3vw, 15px);
+    }
+
+    .faq-item {
+      margin-bottom: clamp(20px, 4vw, 25px);
+      border-radius: clamp(6px, 1.5vw, 8px);
+    }
+
+    .faq-question {
+      padding: clamp(16px, 4vw, 20px);
+    }
+
+    .faq-question h3 {
+      font-size: clamp(15px, 4vw, 16px);
+      line-height: 1.4;
+      padding-right: clamp(30px, 6vw, 40px);
+    }
+
+    .toggle-icon {
+      font-size: clamp(20px, 5vw, 24px);
+      min-width: 24px;
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .faq-answer {
+      padding: 0 clamp(16px, 4vw, 20px);
+    }
+
+    .faq-item.active .faq-answer {
+      padding: clamp(16px, 4vw, 20px);
+      max-height: 300px;
+    }
+
+    .faq-answer p {
+      font-size: clamp(14px, 3.5vw, 16px);
+      line-height: 1.5;
+    }
+
+    .contact-cta {
+      padding: clamp(35px, 7vw, 40px) clamp(15px, 4vw, 20px);
+      margin: 0 clamp(12px, 3vw, 15px) clamp(25px, 5vw, 30px);
+      border-radius: clamp(8px, 2vw, 12px);
+    }
+
+    .contact-cta h2 {
+      font-size: clamp(24px, 6vw, 28px);
+      margin-bottom: clamp(16px, 4vw, 20px);
+    }
+
+    .contact-cta p {
+      font-size: clamp(14px, 4vw, 16px);
+      margin-bottom: clamp(25px, 5vw, 30px);
+      line-height: 1.5;
+    }
+
+    .contact-btn {
+      padding: clamp(14px, 3.5vw, 15px) clamp(25px, 6vw, 30px);
+      font-size: clamp(14px, 3.5vw, 16px);
+      border-radius: clamp(4px, 1vw, 6px);
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    .page-header {
+      margin-bottom: 35px;
+      padding: 40px 20px;
+    }
+
+    .page-header h1 {
+      font-size: 32px;
+    }
+
+    .faq-container {
+      padding: 0 20px;
+      gap: 35px;
+    }
+
+    .faq-navigation {
+      order: 2;
+      position: static;
+    }
+
+    .nav-buttons {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .nav-btn {
+      min-height: 44px;
+    }
+
+    .faq-content {
+      padding: 35px 25px;
+      order: 1;
+    }
+
+    .faq-category h2 {
+      font-size: 26px;
+    }
+
+    .faq-question h3 {
+      font-size: 17px;
+    }
+
+    .contact-cta {
+      padding: 50px 25px;
+      margin: 0 20px 35px;
+    }
+
+    .contact-cta h2 {
+      font-size: 30px;
+    }
+
+    .contact-cta p {
+      font-size: 17px;
+    }
+  }
+
+  /* Touch-friendly enhancements */
+  @media (hover: none) and (pointer: coarse) {
+    .nav-btn, .contact-btn {
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+    
+    .faq-question {
+      min-height: 60px;
+      touch-action: manipulation;
+    }
+    
+    .toggle-icon {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+</style>
+
+<script>
+  // FAQ navigation functionality
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const faqCategories = document.querySelectorAll('.faq-category');
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active class from all buttons and categories
+      navBtns.forEach(b => b.classList.remove('active'));
+      faqCategories.forEach(cat => cat.classList.remove('active'));
+
+      // Add active class to clicked button
+      this.classList.add('active');
+
+      // Show corresponding category
+      const category = this.getAttribute('data-category');
+      document.getElementById(category).classList.add('active');
+    });
+  });
+
+  // FAQ item toggle functionality
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    
+    question.addEventListener('click', function() {
+      // Close other open items
+      faqItems.forEach(otherItem => {
+        if (otherItem !== item) {
+          otherItem.classList.remove('active');
+        }
+      });
+
+      // Toggle current item
+      item.classList.toggle('active');
+    });
+  });
+
+  // Smooth scroll to category when navigating
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const category = this.getAttribute('data-category');
+      const targetElement = document.getElementById(category);
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,1747 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes"/>
+<title>{% block title %}Jiyash Creation{% endblock %}</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary-color: #2d5a3d;
+    --primary-light: #6fbf8f;
+    --primary-dark: #1f3f2b;
+    --primary-bg: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-bg-solid: rgba(255, 255, 255, 0.95);
+    --glass-border: rgba(45, 90, 61, 0.15);
+    --shadow-light: rgba(45, 90, 61, 0.08);
+    --shadow-medium: rgba(45, 90, 61, 0.15);
+    --shadow-heavy: rgba(45, 90, 61, 0.25);
+    --text-primary: #1f3f2b;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border-light: rgba(45, 90, 61, 0.1);
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--primary-bg);
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+  /* Smooth animations for all elements */
+  * {
+    transition: all var(--transition-fast);
+  }
+  
+  /* Remove transition from pseudo-elements to avoid conflicts */
+  *::before, *::after {
+    transition: none;
+  }
+/* Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(15px, 4vw, 30px);
+  width: 100%;
+}
+
+/* Mobile Container Override */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 clamp(10px, 2.5vw, 15px);
+  }
+}
+
+/* 50% Glassmorphism Header */
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
+  transition: all var(--transition-smooth);
+  transform: translateY(0);
+  opacity: 1;
+  box-shadow: 
+    0 4px 16px var(--shadow-light),
+    0 1px 4px var(--shadow-medium),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.header-container.scrolled {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 
+    0 6px 20px var(--shadow-medium),
+    0 2px 6px var(--shadow-light),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Header stays visible - no hide animation needed */
+
+/* Add top padding to body to compensate for fixed header */
+body {
+  padding-top: 80px;
+}
+
+/* Enhanced Mobile Responsive Styles */
+@media (max-width: 768px) {
+  body {
+    padding-top: clamp(60px, 12vw, 70px);
+  }
+  
+  .header {
+    padding: clamp(8px, 2vw, 12px) 0;
+    min-height: clamp(50px, 10vw, 60px);
+    gap: clamp(8px, 2vw, 12px);
+  }
+  
+  .header h1 {
+    font-size: clamp(18px, 5vw, 24px);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .header-nav {
+    display: none !important;
+  }
+  
+  .mobile-menu-toggle {
+    display: flex !important;
+    min-width: clamp(28px, 5vw, 32px) !important;
+    min-height: clamp(28px, 5vw, 32px) !important;
+    padding: clamp(6px, 1.5vw, 8px) !important;
+    gap: 2px !important;
+  }
+  
+  .mobile-menu-toggle span {
+    width: clamp(12px, 2.5vw, 16px) !important;
+    height: 1.5px !important;
+  }
+  
+  .right-icons {
+    gap: clamp(4px, 1vw, 6px);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  
+  .icon,
+  .mobile-menu-toggle {
+    min-width: clamp(40px, 7vw, 48px) !important;
+    min-height: clamp(40px, 7vw, 48px) !important;
+    font-size: clamp(18px, 3.5vw, 22px) !important;
+    flex-shrink: 0;
+    padding: clamp(8px, 2vw, 12px) !important;
+    border-radius: clamp(8px, 2vw, 12px);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .mobile-menu-toggle span {
+    width: clamp(18px, 3.5vw, 24px) !important;
+    height: 2px !important;
+  }
+  
+  nav {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  
+  nav.show {
+    left: 0;
+  }
+  
+  nav .container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .mobile-nav-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(15px, 4vw, 20px);
+    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2001;
+    min-height: clamp(60px, 12vw, 70px);
+  }
+  
+  .mobile-back-btn,
+  .mobile-close-btn {
+    background: transparent;
+    border: none;
+    padding: clamp(8px, 2vw, 10px);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--primary-color);
+    font-size: clamp(16px, 4vw, 18px);
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-back-btn:hover,
+  .mobile-close-btn:hover {
+    background: rgba(45, 90, 61, 0.1);
+    transform: scale(1.05);
+  }
+  
+  .mobile-menu-level {
+    display: none !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    overflow-y: auto;
+    padding: 0;
+  }
+  
+  .mobile-menu-level.active {
+    display: block !important;
+  }
+  
+  #mainMenuLevel {
+    position: static !important;
+    padding: clamp(20px, 5vw, 30px) clamp(15px, 4vw, 20px);
+    padding-top: clamp(20px, 5vw, 30px);
+  }
+  
+  #collectionLevel,
+  #aboutLevel {
+    padding: clamp(15px, 4vw, 20px);
+    padding-top: clamp(90px, 18vw, 110px);
+    padding-bottom: clamp(30px, 6vw, 40px);
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  
+  #collectionLevel ul,
+  #aboutLevel ul {
+    padding-top: clamp(10px, 2vw, 15px);
+  }
+  
+  .mobile-menu-level ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .mobile-menu-level li {
+    margin-bottom: clamp(8px, 2vw, 12px);
+  }
+  
+  .mobile-menu-level a,
+  .mobile-menu-level button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: clamp(16px, 4vw, 20px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(45, 90, 61, 0.1);
+    border-radius: clamp(8px, 2vw, 12px);
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: clamp(16px, 4vw, 18px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-height: 56px;
+    box-shadow: 0 2px 8px rgba(45, 90, 61, 0.05);
+  }
+  
+  .mobile-menu-level a:hover,
+  .mobile-menu-level button:hover {
+    background: rgba(45, 90, 61, 0.05);
+    border-color: rgba(45, 90, 61, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(45, 90, 61, 0.1);
+  }
+  
+  .arrow-right {
+    color: var(--primary-color);
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+}
+
+/* Extra small screens - ensure hamburger menu fits */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 clamp(8px, 2vw, 10px) !important;
+  }
+  
+  .header {
+    padding: clamp(6px, 1.5vw, 8px) 0;
+    gap: clamp(6px, 1.5vw, 8px);
+  }
+  
+  .header h1 {
+    font-size: clamp(16px, 4.5vw, 20px);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .right-icons {
+    gap: clamp(4px, 1vw, 6px);
+    flex-shrink: 0;
+  }
+  
+  .icon,
+  .mobile-menu-toggle {
+    min-width: clamp(38px, 7vw, 44px) !important;
+    min-height: clamp(38px, 7vw, 44px) !important;
+    font-size: clamp(16px, 3.5vw, 20px) !important;
+    padding: clamp(7px, 2vw, 10px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .mobile-menu-toggle {
+    gap: 3px !important;
+  }
+  
+  .mobile-menu-toggle span {
+    width: clamp(16px, 3.5vw, 22px) !important;
+    height: 2px !important;
+  }
+}
+
+/* Ultra small screens */
+@media (max-width: 360px) {
+  .container {
+    padding: 0 6px !important;
+  }
+  
+  .header {
+    gap: 4px;
+  }
+  
+  .header h1 {
+    font-size: clamp(14px, 4vw, 18px);
+  }
+  
+  .right-icons {
+    gap: 3px;
+  }
+  
+  .icon,
+  .mobile-menu-toggle {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    font-size: 16px !important;
+    padding: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .mobile-menu-toggle {
+    gap: 2px !important;
+  }
+  
+  .mobile-menu-toggle span {
+    width: 16px !important;
+    height: 2px !important;
+  }
+}
+/* Header Layout */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(12px, 3vw, 20px) 0;
+  position: relative;
+  min-height: clamp(60px, 8vw, 80px);
+  width: 100%;
+}
+
+/* Brand Logo with Text Background Shadow */
+.header h1 {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(24px, 5vw, 42px);
+  font-weight: 700;
+  color: var(--primary-color);
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.9),
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 30px rgba(255, 255, 255, 0.6),
+    0 2px 8px var(--shadow-light);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.header h1 a {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+  transition: all var(--transition-smooth);
+  position: relative;
+}
+
+.header h1 a:hover {
+  transform: translateY(-2px);
+  text-shadow: 0 4px 16px var(--shadow-medium);
+}
+
+.header h1 a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  transition: width var(--transition-smooth);
+}
+
+.header h1 a:hover::after {
+  width: 100%;
+}
+/* Desktop Navigation */
+.header-nav {
+  display: none;
+  align-items: center;
+  gap: clamp(20px, 4vw, 40px);
+  flex: 1;
+  justify-content: center;
+  margin: 0 clamp(20px, 5vw, 40px);
+}
+
+.header-nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 40px);
+  margin: 0;
+  padding: 0;
+}
+
+.header-nav li {
+  position: relative;
+}
+
+.header-nav > ul > li > a {
+  display: block;
+  padding: clamp(8px, 2vw, 12px) clamp(6px, 2vw, 10px);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: clamp(14px, 3.5vw, 16px);
+  transition: all var(--transition-smooth);
+  position: relative;
+  white-space: nowrap;
+  border-radius: 8px;
+  text-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 16px rgba(255, 255, 255, 0.6),
+    0 0 24px rgba(255, 255, 255, 0.4);
+}
+
+.header-nav > ul > li > a:hover {
+  color: var(--primary-color);
+  background: rgba(45, 90, 61, 0.05);
+  transform: translateY(-1px);
+}
+
+.header-nav > ul > li > a::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  transition: all var(--transition-smooth);
+  transform: translateX(-50%);
+  border-radius: 1px;
+} 
+
+.header-nav > ul > li:hover > a::after {
+  width: 80%;
+}
+/* Enhanced Mega Menu - Solid Background */
+.header-nav .mega {
+  position: absolute;
+  top: calc(100% + 20px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: var(--glass-bg-solid);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 60px var(--shadow-medium),
+    0 8px 24px var(--shadow-light),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  padding: clamp(24px, 5vw, 32px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-smooth);
+  z-index: 1000;
+  min-width: clamp(320px, 80vw, 800px);
+  max-width: 95vw;
+  border: 1px solid var(--glass-border);
+}
+
+.header-nav li:hover .mega {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Mega menu arrow - solid background */
+.header-nav .mega::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  border-bottom: none;
+  border-right: none;
+  transform: translateX(-50%) rotate(45deg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+/* Mega Menu Content */
+.wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(160px, 25vw, 200px), 1fr));
+  gap: clamp(20px, 5vw, 32px);
+  width: 100%;
+}
+
+.col h4 {
+  margin-bottom: clamp(12px, 3vw, 16px);
+  color: var(--primary-color);
+  font-size: clamp(15px, 3.5vw, 17px);
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 10px;
+  position: relative;
+}
+
+.col h4::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border-radius: 1px;
+}
+
+.col h4 a {
+  color: var(--primary-color);
+  padding: 0;
+  text-decoration: none;
+  transition: all var(--transition-smooth);
+}
+
+.col h4 a:hover {
+  transform: translateX(4px);
+}
+
+.col a {
+  display: block;
+  padding: clamp(8px, 2vw, 10px) clamp(8px, 2vw, 12px);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: clamp(13px, 3vw, 15px);
+  font-weight: 400;
+  transition: all var(--transition-smooth);
+  line-height: 1.5;
+  border-radius: 8px;
+  margin: 2px 0;
+}
+
+.col a:hover {
+  color: var(--primary-color);
+  background: rgba(45, 90, 61, 0.05);
+  transform: translateX(8px);
+  box-shadow: 0 2px 8px var(--shadow-light);
+}
+/* Right Icons Section */
+.right-icons {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 3vw, 24px);
+  flex-shrink: 0;
+}
+
+.user-profile-dropdown {
+  position: relative;
+}
+
+/* Enhanced Icon Styling */
+.icon {
+  font-size: clamp(18px, 4vw, 22px);
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: clamp(8px, 2vw, 12px);
+  border-radius: 12px;
+  transition: all var(--transition-smooth);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(44px, 8vw, 52px);
+  min-height: clamp(44px, 8vw, 52px);
+  text-decoration: none;
+  background: rgba(45, 90, 61, 0.05);
+  border: 1px solid transparent;
+}
+
+.icon:hover {
+  background: rgba(45, 90, 61, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--shadow-light);
+  border-color: var(--border-light);
+}
+
+.icon:active {
+  transform: translateY(0);
+}
+/* Cart Badge Enhancement */
+.fa-bag-shopping {
+  position: relative;
+}
+
+#cartCount {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border-radius: 50%;
+  width: clamp(18px, 4vw, 22px);
+  height: clamp(18px, 4vw, 22px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(10px, 2.5vw, 12px);
+  font-weight: 700;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+/* Enhanced User Dropdown - Solid Background */
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0;
+  background: var(--glass-bg-solid);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  min-width: 200px;
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 60px var(--shadow-medium),
+    0 8px 24px var(--shadow-light),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px) scale(0.95);
+  transition: all var(--transition-smooth);
+  border: 1px solid var(--glass-border);
+  z-index: 1001;
+  display: block !important;
+  overflow: hidden;
+}
+
+.user-dropdown-menu.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+/* Dropdown arrow - solid background */
+.user-dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  border-bottom: none;
+  border-right: none;
+  transform: rotate(45deg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 20px);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: clamp(14px, 3.5vw, 15px);
+  transition: all var(--transition-smooth);
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(45, 90, 61, 0.05);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: rgba(45, 90, 61, 0.08);
+  color: var(--primary-color);
+  transform: translateX(4px);
+}
+
+.dropdown-item i {
+  width: 18px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+  font-size: 16px;
+}
+/* Enhanced Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: clamp(8px, 2vw, 10px);
+  gap: 4px;
+  min-width: clamp(40px, 8vw, 44px);
+  min-height: clamp(40px, 8vw, 44px);
+  align-items: center;
+  justify-content: center;
+  border-radius: clamp(8px, 2vw, 10px);
+  transition: all var(--transition-smooth);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border: 1px solid var(--primary-dark);
+  outline: none;
+  position: relative;
+  z-index: 1000;
+  box-shadow: 0 2px 8px var(--shadow-light);
+  flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+  background: linear-gradient(135deg, var(--primary-dark), #0f2419);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--shadow-medium);
+}
+
+.mobile-menu-toggle:active {
+  transform: translateY(0);
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: clamp(16px, 4vw, 20px);
+  height: 2px;
+  background-color: #ffffff;
+  transition: all var(--transition-smooth);
+  transform-origin: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  border-radius: 1px;
+}
+.mobile-menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.mobile-menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+nav {
+  background: #f8f9fa;
+  border-top: 1px solid rgba(45, 90, 61, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+}
+nav.scrolled {
+  background: rgba(248, 249, 250, 0.95);
+  backdrop-filter: blur(10px);
+}
+.nav-inner {
+  padding: 0;
+}
+.nav-inner ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(15px, 4vw, 40px);
+  padding: 0;
+  flex-wrap: wrap;
+}
+.nav-inner li {
+  position: relative;
+}
+.nav-inner > ul > li > a {
+  display: block;
+  padding: clamp(12px, 3vw, 20px) clamp(5px, 2vw, 10px);
+  text-decoration: none;
+  color: #1f3f2b;
+  font-weight: 500;
+  font-size: clamp(13px, 3.5vw, 15px);
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+}
+.nav-inner a:hover {
+  color: var(--primary-color);
+}
+.nav-inner > ul > li > a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  transition: width 0.3s ease;
+}
+.nav-inner > ul > li:hover > a::after {
+  width: 100%;
+}
+.mega {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+  padding: clamp(20px, 5vw, 30px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  min-width: clamp(300px, 80vw, 800px);
+  max-width: 95vw;
+  border: 1px solid rgba(45, 90, 61, 0.1);
+}
+.nav-inner li:hover .mega {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+/* Enhanced Main Content Area */
+main {
+  min-height: 70vh;
+  padding: clamp(30px, 5vw, 60px) 0;
+  position: relative;
+  z-index: 1;
+}
+
+.page-transition {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Footer */
+footer {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  text-align: center;
+  padding: clamp(30px, 5vw, 40px);
+  font-size: clamp(13px, 3vw, 15px);
+  position: relative;
+  overflow: hidden;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="grain" width="100" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="20" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+footer .container {
+  position: relative;
+  z-index: 1;
+}
+@media (min-width: 1024px) {
+  .header-nav {
+    display: flex !important;
+  }
+  nav {
+    display: none;
+  }
+}
+@media (max-width: 1023px) {
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+  .header-nav {
+    display: none !important;
+  }
+  nav {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    z-index: 2000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+  nav.show {
+    left: 0;
+  }
+  .mobile-nav-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .mobile-back-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 15px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+  }
+  .mobile-back-btn:hover {
+    background: rgba(45, 90, 61, 0.1);
+  }
+  .mobile-nav-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d5a3d;
+    margin: 0;
+    padding: 0 15px;
+    text-align: center;
+    flex-grow: 1;
+  }
+  .mobile-close-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  .mobile-menu-level {
+    display: none;
+    padding: 0;
+  }
+  .mobile-menu-level.active {
+    display: block;
+  }
+  .mobile-menu-level ul {
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+    list-style: none;
+  }
+  .mobile-menu-level li {
+    margin: 0;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+  }
+  .mobile-menu-level a,
+  .mobile-menu-level button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    font-size: 16px;
+    color: #1f3f2b;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .mobile-menu-level a:hover,
+  .mobile-menu-level button:hover {
+    background: rgba(45, 90, 61, 0.05);
+  }
+  .mobile-menu-level .arrow-right {
+    color: #666;
+    font-size: 14px;
+  }
+  .mega {
+    display: none !important;
+  }
+  .nav-inner ul {
+    display: none;
+  }
+  body.menu-open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1500;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    padding: 0 20px;
+  }
+  .nav-inner ul {
+    gap: 20px;
+    justify-content: space-around;
+  }
+  .mega {
+    min-width: 500px;
+    padding: 20px;
+  }
+  .wrap {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+@media (min-width: 769px) {
+  .mobile-nav-header {
+    display: none !important;
+  }
+  .mobile-menu-level {
+    display: none !important;
+  }
+  .desktop-only {
+    display: block !important;
+  }
+  .nav-inner ul {
+    gap: 35px;
+    display: flex !important;
+  }
+  .mega {
+    min-width: 700px;
+  }
+  
+  .header-nav {
+    display: flex !important;
+  }
+  
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+  
+  nav {
+    position: static !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    background: #f8f9fa !important;
+    backdrop-filter: none !important;
+    z-index: auto !important;
+    transition: none !important;
+    overflow-y: visible !important;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .header { padding: 10px 0; gap: 10px; }
+  .header h1 { font-size: clamp(20px, 3.5vw, 34px); }
+  .header-nav { gap: 18px; margin: 0 16px; }
+  .header-nav ul { gap: 18px; }
+  .header-nav > ul > li > a { font-size: 14px; padding: 6px 6px; }
+  .right-icons { gap: 10px; }
+  .icon { min-width: 40px; min-height: 40px; font-size: 18px; }
+}
+.hidden-by-auth { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="header-container" id="header-container">
+  <div class="container">
+    <header class="header" id="header">
+      <h1><a href="{% url 'app:home' %}" style="text-decoration: none; color: inherit;">Jiyash Creation</a></h1>
+      
+      <div class="header-nav">
+        <ul>
+          <li><a href="{% url 'app:home' %}">Home</a></li>
+          <li>
+            <a href="#" role="button" aria-expanded="false">Collection</a>
+            {% if header_categories %}
+            <div class="mega" style="min-width:clamp(280px, 70vw, 350px)" role="menu" aria-hidden="true">
+              <div class="wrap">
+                <div class="col">
+                  {% for c in header_categories %}
+                    <a href="{% url 'app:collection' collection_type=c.type %}" role="menuitem">{{ c.name }}</a>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </li>
+          <li><a href="{% url 'app:shop_all' %}">Shop All</a></li>
+          <li><a href="{% url 'app:faqs' %}">FAQs</a></li>
+          <li>
+            <a href="#" role="button" aria-expanded="false">About Us</a>
+            <div class="mega" style="min-width:clamp(280px, 70vw, 350px)" role="menu" aria-hidden="true">
+              <div class="wrap">
+                <div class="col">
+                  <a href="{% url 'app:about' %}" role="menuitem">Our Story</a>
+                  <a href="{% url 'app:contact' %}" role="menuitem">Contact</a>
+                  <a href="{% url 'app:faqs' %}" role="menuitem">FAQs</a>
+                  <a href="{% url 'app:privacy_policies' %}" role="menuitem">Privacy Policies</a>
+                  <a href="{% url 'app:terms_and_conditions' %}" role="menuitem">Terms & Conditions</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="right-icons">
+        <div class="user-profile-dropdown">
+          <i class="fa-regular fa-user icon" title="Profile" id="userProfileIcon" role="button" tabindex="0" aria-label="User profile menu"></i>
+          <div class="user-dropdown-menu" id="userDropdownMenu" role="menu">
+            <div class="guest-group" data-auth="guest">
+              <a href="{% url 'app:signup' %}" class="dropdown-item"><i class="fa-solid fa-user-plus"></i>Sign Up</a>
+              <a href="{% url 'app:login' %}" class="dropdown-item"><i class="fa-solid fa-sign-in-alt"></i>Sign In</a>
+            </div>
+            <div class="auth-group" data-auth="auth">
+              <a href="{% url 'app:profile' %}" class="dropdown-item profile-item"><i class="fa-regular fa-user"></i>Profile</a>
+              <a href="{% url 'app:forgot_password' %}" class="dropdown-item"><i class="fa-solid fa-key"></i>Forgot Password</a>
+              <a href="#" id="logoutBtn" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+            </div>
+          </div>
+        </div>
+        <a href="{% url 'app:wishlist' %}" class="icon" title="Wishlist" aria-label="Wishlist">
+          <i class="fa-regular fa-heart"></i>
+        </a>
+        <a href="#" onclick="goToCart(event)" class="icon cart-icon" title="Shopping Cart" aria-label="Shopping cart">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span id="cartCount" style="display: none;">0</span>
+        </a>
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" role="button" tabindex="0" aria-label="Toggle mobile menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+  </div>
+</div>
+
+<nav role="navigation" id="mobileNav">
+  <div class="container">
+    <div class="mobile-nav-header">
+      <button class="mobile-back-btn" id="mobileBackBtn">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h1 class="mobile-nav-title" id="mobileNavTitle" style="font-family: 'Dancing Script', cursive; font-size: 24px; font-weight: 700; color: #2d5a3d; margin: 0; padding: 0 15px; text-align: center; flex-grow: 1;">Jiyash Creation</h1>
+      <button class="mobile-close-btn" id="mobileCloseBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="mobile-menu-level active" id="mainMenuLevel">
+      <ul>
+        <li><a href="{% url 'app:home' %}">Home</a></li>
+        {% if header_categories %}
+          <li>
+            <button class="collection-btn" data-target="collectionLevel">
+              Collection
+              <i class="fas fa-chevron-right arrow-right"></i>
+            </button>
+          </li>
+        {% endif %}
+        <li><a href="{% url 'app:shop_all' %}">Shop All</a></li>
+        <li><a href="{% url 'app:faqs' %}">FAQs</a></li>
+        <li>
+          <button class="about-btn" data-target="aboutLevel">
+            About Us
+            <i class="fas fa-chevron-right arrow-right"></i>
+          </button>
+        </li>
+        <li class="mobile-guest" data-auth="guest"><a href="{% url 'app:login' %}">Sign In</a></li>
+        <li class="mobile-guest" data-auth="guest"><a href="{% url 'app:signup' %}">Sign Up</a></li>
+        <li class="mobile-auth" data-auth="auth"><a href="{% url 'app:profile' %}">Profile</a></li>
+        <li class="mobile-auth" data-auth="auth"><a href="{% url 'app:forgot_password' %}">Forgot Password</a></li>
+        <li class="mobile-auth" data-auth="auth"><a href="#" id="mobileLogout">Logout</a></li>
+      </ul>
+    </div>
+    <div class="mobile-menu-level" id="collectionLevel">
+      {% if header_categories %}
+      <ul>
+        {% for c in header_categories %}
+          <li><a href="{% url 'app:collection' collection_type=c.type %}">{{ c.name }}</a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <ul></ul>
+      {% endif %}
+    </div>
+    <div class="mobile-menu-level" id="aboutLevel">
+      <ul>
+        <li><a href="{% url 'app:about' %}">Our Story</a></li>
+        <li><a href="{% url 'app:contact' %}">Contact</a></li>
+        <li><a href="{% url 'app:faqs' %}">FAQs</a></li>
+        <li><a href="{% url 'app:privacy_policies' %}">Privacy Policies</a></li>
+        <li><a href="{% url 'app:terms_and_conditions' %}">Terms & Conditions</a></li>
+      </ul>
+    </div>
+    <div class="nav-inner desktop-only" id="navInner">
+      <ul>
+        <li><a href="{% url 'app:home' %}">Home</a></li>
+        <li>
+          <a href="#" role="button" aria-expanded="false">Collection</a>
+          {% if header_categories %}
+          <div class="mega" style="min-width:clamp(280px, 70vw, 350px)" role="menu" aria-hidden="true">
+            <div class="wrap">
+              <div class="col">
+                {% for c in header_categories %}
+                  <a href="{% url 'app:collection' collection_type=c.type %}" role="menuitem">{{ c.name }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </li>
+        <li><a href="{% url 'app:shop_all' %}">Shop All</a></li>
+        <li><a href="{% url 'app:faqs' %}">FAQs</a></li>
+        <li>
+          <a href="#" role="button" aria-expanded="false">About Us</a>
+          <div class="mega" style="min-width:clamp(280px, 70vw, 350px)" role="menu" aria-hidden="true">
+            <div class="wrap">
+              <div class="col">
+                <a href="{% url 'app:about' %}" role="menuitem">Our Story</a>
+                <a href="{% url 'app:contact' %}" role="menuitem">Contact</a>
+                <a href="{% url 'app:faqs' %}" role="menuitem">FAQs</a>
+                <a href="{% url 'app:privacy_policies' %}" role="menuitem">Privacy Policies</a>
+                <a href="{% url 'app:terms_and_conditions' %}" role="menuitem">Terms & Conditions</a>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="page-transition">
+  <div class="container">
+    {% block content %}
+    {% endblock %}
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    &copy; {{ now.year }} Jiyash Creation — handcrafted jewelry
+  </div>
+</footer>
+
+<script>
+// Authentication and Cart functionality
+function getAuthToken() {
+  return localStorage.getItem('jwt_token');
+}
+
+function showAuthState(isAuthenticated) {
+  const guestEls = document.querySelectorAll('[data-auth="guest"]');
+  const authEls = document.querySelectorAll('[data-auth="auth"]');
+  
+  guestEls.forEach(el => el.style.display = isAuthenticated ? 'none' : '');
+  authEls.forEach(el => el.style.display = isAuthenticated ? '' : 'none');
+}
+
+function updateAuthState() {
+  const token = getAuthToken();
+  const isAuthenticated = !!token;
+  showAuthState(isAuthenticated);
+  
+  // Re-initialize user dropdown after auth state change
+  if (isAuthenticated) {
+    setTimeout(() => {
+      initializeUserDropdown();
+    }, 100);
+  }
+}
+
+function initializeUserDropdown() {
+  console.log('initializeUserDropdown called');
+  const userProfileIcon = document.getElementById('userProfileIcon');
+  const userDropdownMenu = document.getElementById('userDropdownMenu');
+  
+  console.log('Elements found:', { 
+    userProfileIcon: !!userProfileIcon, 
+    userDropdownMenu: !!userDropdownMenu 
+  });
+
+  if (userProfileIcon && userDropdownMenu) {
+    console.log('Setting up dropdown event listeners');
+    
+    // Remove any existing click listeners by cloning the element
+    const newIcon = userProfileIcon.cloneNode(true);
+    userProfileIcon.parentNode.replaceChild(newIcon, userProfileIcon);
+    
+    // Add click event to toggle dropdown
+    newIcon.addEventListener('click', function(e) {
+      console.log('User profile icon clicked!');
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const isCurrentlyActive = userDropdownMenu.classList.contains('active');
+      console.log('Current dropdown state - active:', isCurrentlyActive);
+      
+      // Toggle the dropdown
+      if (isCurrentlyActive) {
+        userDropdownMenu.classList.remove('active');
+        userDropdownMenu.style.display = 'none';
+        newIcon.setAttribute('aria-expanded', 'false');
+        console.log('Dropdown closed');
+      } else {
+        userDropdownMenu.classList.add('active');
+        userDropdownMenu.style.display = 'block';
+        newIcon.setAttribute('aria-expanded', 'true');
+        console.log('Dropdown opened');
+      }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!newIcon.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+        userDropdownMenu.classList.remove('active');
+        userDropdownMenu.style.display = 'none';
+        newIcon.setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    console.log('Dropdown initialization complete');
+  } else {
+    console.error('Required dropdown elements not found!');
+  }
+}
+
+// Function to update cart count
+function updateCartCount() {
+  const token = localStorage.getItem('jwt_token');
+  const cartCountEl = document.getElementById('cartCount');
+  
+  if (!token || !cartCountEl) {
+    if (cartCountEl) cartCountEl.textContent = '0';
+    return Promise.resolve();
+  }
+
+  return fetch('/api/cart/', {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Cart count response:', data);
+    if (data.success) {
+      const count = data.cart_count || 0;
+      cartCountEl.textContent = count;
+      cartCountEl.style.display = (count > 0) ? 'flex' : 'none';
+      console.log('Updated cart count to:', count, 'Display:', cartCountEl.style.display);
+    }
+    return data;
+  })
+  .catch(error => {
+    console.error('Error fetching cart count:', error);
+    cartCountEl.textContent = '0';
+    cartCountEl.style.display = 'none';
+    return { cart_count: 0 };
+  });
+}
+
+// Cart navigation function with JWT authentication
+function goToCart(event) {
+  event.preventDefault();
+  
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    alert('Please login to access your cart');
+    window.location.href = '/login/?next=/cart/';
+    return;
+  }
+  
+  // Set JWT token as cookie so server can access it during navigation
+  document.cookie = `jwt_token=${token}; path=/; max-age=86400; SameSite=Lax`;
+  window.location.href = '/cart/';
+}
+
+// Make functions globally available
+window.updateCartCount = updateCartCount;
+window.updateAuthState = updateAuthState;
+window.goToCart = goToCart;
+
+function handleLogout(e) {
+  if (e) e.preventDefault();
+  try {
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user');
+    showAuthState(false);
+    updateCartCount(); // Reset cart count on logout
+    window.location.href = '/';
+  } catch (error) {
+    console.error('Logout error:', error);
+    window.location.href = '/';
+  }
+}
+
+// Initialize auth state and cart count on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Always update auth state to show/hide UI elements
+  updateAuthState();
+  
+  // Update cart count if user is authenticated
+  const token = getAuthToken();
+  if (token) {
+    updateCartCount();
+  }
+  
+  // Setup logout handlers
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
+  }
+  
+  const mobileLogout = document.getElementById('mobileLogout');
+  if (mobileLogout) {
+    mobileLogout.addEventListener('click', handleLogout);
+  }
+  
+  // Setup user dropdown functionality immediately
+  initializeUserDropdown();
+});
+
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const mobileNav = document.getElementById('mobileNav');
+  const mobileBackBtn = document.getElementById('mobileBackBtn');
+  const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+  const mobileNavTitle = document.getElementById('mobileNavTitle');
+  const body = document.body;
+  let navigationStack = [];
+  
+  function openMobileMenu() {
+    console.log('Opening mobile menu');
+    mobileNav.classList.add('show');
+    mobileMenuToggle.classList.add('active');
+    body.style.overflow = 'hidden';
+    navigationStack = ['mainMenuLevel'];
+    showLevel('mainMenuLevel');
+    updateNavigationUI();
+  }
+  
+  function closeMobileMenu() {
+    console.log('Closing mobile menu');
+    mobileNav.classList.remove('show');
+    mobileMenuToggle.classList.remove('active');
+    body.style.overflow = '';
+    navigationStack = [];
+  }
+  
+  function goBack() {
+    if (navigationStack.length > 1) {
+      navigationStack.pop();
+      const previousLevel = navigationStack[navigationStack.length - 1];
+      showLevel(previousLevel);
+      updateNavigationUI();
+    }
+  }
+  
+  function showLevel(levelId) {
+    console.log('Showing level:', levelId);
+    const levels = mobileNav.querySelectorAll('.mobile-menu-level');
+    console.log('Found levels:', levels.length);
+    
+    levels.forEach(level => {
+      level.classList.remove('active');
+      level.style.display = 'none';
+      console.log('Hiding level:', level.id);
+    });
+    
+    const targetLevel = document.getElementById(levelId);
+    if (targetLevel) {
+      targetLevel.classList.add('active');
+      targetLevel.style.display = 'block';
+      console.log('Showing target level:', levelId, targetLevel);
+    } else {
+      console.log('Target level not found:', levelId);
+    }
+  }
+  
+  if (mobileMenuToggle && mobileNav) {
+    mobileMenuToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      openMobileMenu();
+    });
+    mobileCloseBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      closeMobileMenu();
+    });
+    mobileBackBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      goBack();
+    });
+    // Handle dropdown navigation buttons
+    const collectionBtn = document.querySelector('.collection-btn');
+    const aboutBtn = document.querySelector('.about-btn');
+    
+    if (collectionBtn) {
+      collectionBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Collection button clicked, navigating to collectionLevel');
+        navigationStack.push('collectionLevel');
+        showLevel('collectionLevel');
+        updateNavigationUI('Collection');
+      });
+    } else {
+      console.log('Collection button not found');
+    }
+    
+    if (aboutBtn) {
+      aboutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('About button clicked, navigating to aboutLevel');
+        navigationStack.push('aboutLevel');
+        showLevel('aboutLevel');
+        updateNavigationUI('About Us');
+      });
+    } else {
+      console.log('About button not found');
+    }
+  }
+
+  function updateNavigationUI(title) {
+    if (title) {
+      mobileNavTitle.textContent = title;
+    } else {
+      const currentLevel = navigationStack[navigationStack.length - 1];
+      mobileNavTitle.textContent = getTitleForLevel(currentLevel);
+    }
+    if (navigationStack.length > 1) {
+      mobileBackBtn.style.display = 'flex';
+    } else {
+      mobileBackBtn.style.display = 'none';
+      mobileNavTitle.textContent = 'Jiyash Creation';
+    }
+  }
+  
+  function getTitleForLevel(levelId) {
+    switch (levelId) {
+      case 'mainMenuLevel':
+        return 'Menu';
+      case 'collectionLevel':
+        return 'Collection';
+      case 'aboutLevel':
+        return 'About Us';
+      default:
+        const categoryBtn = document.querySelector(`[data-target="${levelId}"]`);
+        return categoryBtn ? categoryBtn.getAttribute('data-category-name') : 'Category';
+    }
+  }
+  document.addEventListener('click', function(e) {
+    if (mobileNav.classList.contains('show') && !mobileNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+      closeMobileMenu();
+    }
+  });
+  const finalLinks = mobileNav.querySelectorAll('a[href]');
+  finalLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) {
+        setTimeout(() => { closeMobileMenu(); }, 100);
+      }
+    });
+  });
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768 && mobileNav.classList.contains('show')) closeMobileMenu();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && mobileNav.classList.contains('show')) {
+      if (navigationStack.length > 1) goBack(); else closeMobileMenu();
+    }
+  });
+});
+
+// Enhanced Scroll functionality with glassmorphism - Header always visible
+let ticking = false;
+
+function updateHeaderOnScroll() {
+  const header = document.getElementById('header-container');
+  const nav = document.querySelector('nav');
+  const currentScrollY = window.scrollY;
+  const scrolled = currentScrollY > 50;
+  
+  if (header) {
+    // Only toggle glassmorphism effect, header stays visible
+    header.classList.toggle('scrolled', scrolled);
+  }
+  
+  if (nav && !nav.classList.contains('show')) {
+    nav.classList.toggle('scrolled', scrolled);
+  }
+  
+  ticking = false;
+}
+
+window.addEventListener('scroll', function() {
+  if (!ticking) {
+    requestAnimationFrame(updateHeaderOnScroll);
+    ticking = true;
+  }
+}, { passive: true });
+</script>
+
+<!-- Global Wishlist Functionality -->
+<script src="{% static 'app/js/wishlist.js' %}"></script>
+
+<!-- Global Wishlist Styles -->
+<style>
+.wish-icon, .wishlist-btn {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.wish-icon:hover, .wishlist-btn:hover {
+  transform: scale(1.1);
+}
+
+.wish-icon.wishlisted i, .wishlist-btn.wishlisted i {
+  color: #dc3545 !important;
+}
+
+.wish-icon[aria-pressed="true"] i, .wishlist-btn[aria-pressed="true"] i {
+  color: #dc3545 !important;
+}
+
+/* Animation for wishlist changes */
+@keyframes wishlistPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.wish-icon.updating, .wishlist-btn.updating {
+  animation: wishlistPulse 0.3s ease-in-out;
+}
+</style>
+
+</body>
+</html>

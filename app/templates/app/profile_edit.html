@@ -1,0 +1,655 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content %}
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background: linear-gradient(135deg, #1a3f2b, rgba(45, 90, 61, 0.15), #2d5a3d, rgba(45, 90, 61, 0.15), #1a3f2b);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #333;
+  }
+
+  .profile-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+  }
+
+  .profile-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(45, 90, 61, 0.2);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0, 37, 64, 0.3);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #1f3f2b 0%, #2d5a3d 100%);
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(45, 90, 61, 0.2) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .card-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-description {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-content {
+    padding: 2rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d5a3d;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #2d5a3d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .input-group {
+    position: relative;
+  }
+
+  .input-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #2d5a3d;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .label-icon {
+    width: 18px;
+    height: 18px;
+    color: #2d5a3d;
+  }
+
+  .animated-input {
+    width: 100%;
+    border: 2px solid #2d5a3d33;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    outline: none;
+  }
+
+  .animated-input:focus {
+    border-color: #2d5a3d;
+    box-shadow: 0 0 0 4px #2d5a3d1a, 0 4px 12px #2d5a3d26;
+    transform: translateY(-2px);
+  }
+
+  .animated-input:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 24px rgba(45, 90, 61, 0.3);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2d5a3d 0%, #3d6b4f 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(45, 90, 61, 0.4);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(107, 114, 128, 0.4);
+  }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #2d5a3d 0%, #3d6b4f 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(45, 90, 61, 0.3);
+    z-index: 1000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+    font-weight: 500;
+  }
+
+  .toast.show {
+    transform: translateX(0);
+  }
+
+  .toast.success {
+    background: linear-gradient(135deg, #2d5a3d 0%, #3d6b4f 100%);
+  }
+
+  .toast.error {
+    background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
+  }
+
+  @media (max-width: 768px) {
+    .profile-container {
+      margin: 1rem;
+      padding: 1rem;
+    }
+
+    .input-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="card-header">
+      <h2 class="card-title">Edit Your Profile</h2>
+      <p class="card-description">Update your personal and address information</p>
+    </div>
+
+    <div class="card-content">
+      <form id="profile-form">
+        <!-- Personal Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-user"></i>
+            Personal Information
+          </h3>
+          <div class="input-grid">
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-user label-icon"></i>
+                First Name
+              </label>
+              <input type="text" name="first_name" id="first_name" class="animated-input" placeholder="Enter your first name" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-user label-icon"></i>
+                Last Name
+              </label>
+              <input type="text" name="last_name" id="last_name" class="animated-input" placeholder="Enter your last name" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-envelope label-icon"></i>
+                Email Address
+              </label>
+              <input type="email" name="email" id="email" class="animated-input" placeholder="Enter your email" disabled>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-phone label-icon"></i>
+                Phone Number
+              </label>
+              <input type="tel" name="phone_number" id="phone_number" class="animated-input" placeholder="Enter your phone number">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-calendar label-icon"></i>
+                Birth Date
+              </label>
+              <input type="date" name="birth_date" id="birth_date" class="animated-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Address Information
+          </h3>
+          <div class="input-grid">
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-home label-icon"></i>
+                House Number
+              </label>
+              <input type="text" name="street_number" id="street_number" class="animated-input" placeholder="Enter house number">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-road label-icon"></i>
+                Street Name
+              </label>
+              <input type="text" name="street_name" id="street_name" class="animated-input" placeholder="Enter street name">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-globe label-icon"></i>
+                Country
+              </label>
+              <select name="country" id="country" class="animated-input">
+                <option value="">Select country</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-map label-icon"></i>
+                State/Province
+              </label>
+              <select name="state" id="state" class="animated-input">
+                <option value="">Select country first</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-city label-icon"></i>
+                City
+              </label>
+              <select name="city" id="city" class="animated-input">
+                <option value="">Select state first</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-map-pin label-icon"></i>
+                Pincode
+              </label>
+              <input type="text" name="pincode" id="pincode" class="animated-input" placeholder="Enter pincode">
+            </div>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Save Changes
+          </button>
+          <a href="{% url 'app:profile' %}" class="btn btn-secondary" id="cancelBtn">
+            <i class="fas fa-times"></i>
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let locationData = {};
+let currentUserData = {};
+
+async function loadLocationData() {
+  try {
+    const response = await fetch("{% static 'app/data/country_state_city_full.json' %}");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    locationData = await response.json();
+    console.log('Location data loaded successfully');
+  } catch (error) {
+    console.error('Error loading location data:', error);
+    locationData = {};
+  }
+}
+
+function populateCountryDropdown() {
+  const countrySelect = document.getElementById('country');
+  countrySelect.innerHTML = '<option value="">Select country</option>';
+  
+  if (locationData && Object.keys(locationData).length > 0) {
+    const countries = Object.keys(locationData);
+    countries.forEach(country => {
+      const option = document.createElement('option');
+      option.value = country;
+      const countryName = country.split(' (')[0];
+      option.textContent = countryName;
+      countrySelect.appendChild(option);
+    });
+  }
+}
+
+function updateStateDropdown(country) {
+  const stateSelect = document.getElementById('state');
+  const citySelect = document.getElementById('city');
+
+  stateSelect.innerHTML = '<option value="">Select state</option>';
+  citySelect.innerHTML = '<option value="">Select state first</option>';
+
+  if (country && locationData[country]) {
+    const states = Object.keys(locationData[country]);
+    states.forEach(state => {
+      const option = document.createElement('option');
+      option.value = state;
+      const stateName = state.split(' (')[0];
+      option.textContent = stateName;
+      stateSelect.appendChild(option);
+    });
+  }
+}
+
+function updateCityDropdown(country, state) {
+  const citySelect = document.getElementById('city');
+  citySelect.innerHTML = '<option value="">Select city</option>';
+
+  if (country && state && locationData[country] && locationData[country][state]) {
+    const cities = locationData[country][state];
+    cities.forEach(city => {
+      const option = document.createElement('option');
+      option.value = city;
+      option.textContent = city;
+      citySelect.appendChild(option);
+    });
+  }
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast ${type}`;
+  toast.classList.add('show');
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+async function loadUserProfile() {
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    window.location.href = '{% url "app:login" %}';
+    return;
+  }
+
+  try {
+    const response = await fetch('{% url "app:profile_api" %}', {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    if (response.status === 401) {
+      window.location.href = '{% url "app:login" %}';
+      return;
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error('Failed to load profile');
+    }
+
+    currentUserData = data.user;
+    populateForm(currentUserData);
+  } catch (error) {
+    console.error('Error loading profile:', error);
+    showToast('Failed to load profile data', 'error');
+  }
+}
+
+function populateForm(userData) {
+  document.getElementById('first_name').value = userData.first_name || '';
+  document.getElementById('last_name').value = userData.last_name || '';
+  document.getElementById('email').value = userData.email || '';
+  document.getElementById('phone_number').value = userData.phone_number || '';
+  document.getElementById('birth_date').value = userData.birth_date || '';
+  
+  const addr = userData.address || {};
+  document.getElementById('street_number').value = addr.house_number || '';
+  document.getElementById('street_name').value = addr.street_name || '';
+  document.getElementById('pincode').value = addr.pincode || '';
+  
+  // Set country, state, city after dropdowns are populated
+  if (addr.country) {
+    document.getElementById('country').value = addr.country;
+    updateStateDropdown(addr.country);
+    
+    setTimeout(() => {
+      if (addr.state) {
+        document.getElementById('state').value = addr.state;
+        updateCityDropdown(addr.country, addr.state);
+        
+        setTimeout(() => {
+          if (addr.city) {
+            document.getElementById('city').value = addr.city;
+          }
+        }, 100);
+      }
+    }, 100);
+  }
+}
+
+async function handleFormSubmit(e) {
+  e.preventDefault();
+
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    window.location.href = '{% url "app:login" %}';
+    return;
+  }
+
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData);
+
+  try {
+    const response = await fetch('{% url "app:update_profile" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      let message = result.message || 'Profile updated successfully!';
+      showToast(message, 'success');
+      
+      // Check if there's a next parameter in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const next = urlParams.get('next');
+      
+      // If country was changed, show additional message and refresh
+      if (result.country_changed) {
+        showToast('Country updated! Refreshing to show new prices...', 'success');
+        
+        // Add a manual refresh button as backup
+        const refreshButton = document.createElement('button');
+        refreshButton.textContent = 'Click here if page doesn\'t refresh automatically';
+        refreshButton.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; padding: 10px 20px; background: #2d5a3d; color: white; border: none; border-radius: 5px; cursor: pointer;';
+        refreshButton.onclick = () => {
+          window.location.href = '{% url "app:home" %}';
+        };
+        document.body.appendChild(refreshButton);
+        
+        // Force page refresh to show new prices
+        setTimeout(() => {
+          if (next === 'checkout') {
+            // Redirect to checkout page
+            window.location.href = '{% url "app:checkout" %}';
+          } else {
+            // Try to go back to the previous page, but ensure it's not a profile page
+            const referrer = document.referrer;
+            const currentHost = window.location.origin;
+            
+            console.log('🔍 Country changed - preparing redirect...');
+            console.log('Referrer:', referrer);
+            console.log('Current host:', currentHost);
+            
+            if (referrer && 
+                referrer.startsWith(currentHost) && 
+                !referrer.includes('/profile') && 
+                !referrer.includes('/login') && 
+                !referrer.includes('/signup')) {
+              console.log('✅ Redirecting to referrer:', referrer);
+              window.location.href = referrer;
+            } else {
+              // Fallback: go to home page to see updated prices
+              console.log('✅ Redirecting to home page');
+              window.location.href = '{% url "app:home" %}';
+            }
+          }
+        }, 3000); // Increased delay to ensure user sees the message
+      } else {
+        setTimeout(() => {
+          if (next === 'checkout') {
+            // Redirect to checkout page
+            window.location.href = '{% url "app:checkout" %}';
+          } else {
+            // Default: redirect to profile page
+            window.location.href = '{% url "app:profile" %}';
+          }
+        }, 1500);
+      }
+    } else {
+      showToast(result.message || 'Failed to update profile', 'error');
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    showToast('Failed to update profile', 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadLocationData();
+  populateCountryDropdown();
+  await loadUserProfile();
+
+  // Setup event listeners
+  document.getElementById('country').addEventListener('change', function() {
+    updateStateDropdown(this.value);
+    updateCityDropdown('', '');
+  });
+
+  document.getElementById('state').addEventListener('change', function() {
+    const country = document.getElementById('country').value;
+    updateCityDropdown(country, this.value);
+  });
+
+  document.getElementById('profile-form').addEventListener('submit', handleFormSubmit);
+  
+  // Handle cancel button redirect
+  const urlParams = new URLSearchParams(window.location.search);
+  const next = urlParams.get('next');
+  const cancelBtn = document.getElementById('cancelBtn');
+  
+  if (next === 'checkout' && cancelBtn) {
+    cancelBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = '{% url "app:cart" %}';
+    });
+  }
+});
+</script>
+{% endblock %}

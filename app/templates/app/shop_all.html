@@ -1,0 +1,854 @@
+{% extends "app/base.html" %}
+{% block title %}Shop All - Jiyash{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Shop All</h1>
+  <p>Explore our complete collection of handcrafted jewelry</p>
+</div>
+
+<div class="shop-container">
+  <div class="filters-sidebar">
+    <h3>Filters</h3>
+    <div class="filter-section">
+      <h4>Price Range</h4>
+      <div class="price-filter">
+        <div class="range-wrapper">
+          <div class="slider-track"></div>
+          <input type="range" id="priceMin" class="price-input" min="{{ min_price_limit|default:0 }}" max="{{ max_price_limit|default:0 }}" value="{{ min_price_selected|default:min_price_limit }}" step="1">
+          <input type="range" id="priceMax" class="price-input" min="{{ min_price_limit|default:0 }}" max="{{ max_price_limit|default:0 }}" value="{{ max_price_selected|default:max_price_limit }}" step="1">
+        </div>
+        <div class="price-display">
+          <span id="minPriceLabel">₹{{ min_price_selected|default:min_price_limit }}</span>
+          <span id="maxPriceLabel">₹{{ max_price_selected|default:max_price_limit }}</span>
+        </div>
+        <button id="applyPriceFilter" class="apply-filter-btn">Apply Filter</button>
+      </div>
+    </div>
+    
+    <div class="filter-section">
+      <h4>Product Age</h4>
+      <div class="age-filter">
+        <label class="filter-checkbox">
+          <input type="radio" name="age" value="" checked> All Products
+        </label>
+        <label class="filter-checkbox">
+          <input type="radio" name="age" value="new"> New (Last 30 days)
+        </label>
+        <label class="filter-checkbox">
+          <input type="radio" name="age" value="old"> Older Products
+        </label>
+      </div>
+    </div>
+    
+  </div>
+
+  <div class="products-section">
+    <div class="products-header">
+      <div class="results-count">
+        <span id="productCount">{{ products|length }}</span> products found
+      </div>
+      <div class="sort-options">
+        <select id="sortSelect" class="sort-select">
+          <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+          <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+          <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+          <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name: A to Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="products-grid">
+      {% if products %}
+        <div class="products-container">
+          {% for product in products %}
+            <div class="product-card">
+              <a href="{% if product.product_type == 'gold' %}{% url 'app:product_detail_gold' pk=product.id %}{% elif product.product_type == 'silver' %}{% url 'app:product_detail_silver' pk=product.id %}{% elif product.product_type == 'imitation' %}{% url 'app:product_detail_imitation' pk=product.id %}{% else %}{% url 'app:product_detail' product_type=product.product_type pk=product.id %}{% endif %}" class="product-link-wrapper">
+                <div class="product-image-container">
+                  {% if product.display_original_price|default:product.original_price and product.display_selling_price|default:product.selling_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                    <div class="discount-badge">SALE</div>
+                  {% endif %}
+                  {% if product.image1 %}
+                    <img src="{{ product.image1.url }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+                  {% else %}
+                    <div class="no-image">
+                      <i class="fas fa-image"></i>
+                      <span>No Image</span>
+                    </div>
+                  {% endif %}
+                  <div class="product-overlay">
+                    <span class="view-product-text">View Details</span>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <h5 class="product-title">{{ product.name }}</h5>
+                  <p class="product-description">{{ product.description|truncatewords:10|default:"Beautiful jewelry piece" }}</p>
+                  <div class="price-container">
+                    <span class="selling-price">₹{{ product.display_selling_price|default:product.selling_price|floatformat:0 }}</span>
+                    {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                      <del class="original-price">₹{{ product.display_original_price|default:product.original_price|floatformat:0 }}</del>
+                    {% endif %}
+                  </div>
+                  <div class="product-actions">
+                    <span class="wish-icon" title="Add to Wishlist"
+                          data-product-id="{{ product.id }}"
+                          data-add-url="{% url 'app:add_to_wishlist' product_type=product.product_type pk=product.id %}"
+                          data-remove-url="{% url 'app:remove_from_wishlist' product_type=product.product_type pk=product.id %}"
+                          aria-pressed="{% if product.id in wishlist_ids %}true{% else %}false{% endif %}">
+                        {% if product.id in wishlist_ids %}
+                          <i class="fa-solid fa-heart" style="color:#b91c1c;"></i>
+                        {% else %}
+                          <i class="fa-regular fa-heart" style="color:#b91c1c;"></i>
+                        {% endif %}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-products">
+          <p>No products found.</p>
+          <a href="{% url 'app:home' %}" class="back-to-home">Back to Home</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+  }
+
+  .page-header h1 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .page-header p {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .shop-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 40px;
+    padding: 0 20px;
+  }
+
+  .filters-sidebar {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+
+  .filters-sidebar h3 {
+    color: var(--primary);
+    margin-bottom: 25px;
+    font-size: 20px;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .filter-section {
+    margin-bottom: 25px;
+  }
+
+  .filter-section h4 {
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .filter-list li {
+    margin-bottom: 8px;
+  }
+
+  .filter-link {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: block;
+    padding: 8px 0;
+  }
+
+  .filter-link:hover {
+    color: var(--primary);
+  }
+
+  .price-filter {
+    margin-top: 15px;
+  }
+
+  .range-wrapper {
+    position: relative;
+    height: 36px;
+  }
+
+  .price-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 8px;
+    background: none;
+    pointer-events: none;
+  }
+
+  .price-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--primary, #2d5a3d);
+    border: 2px solid white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    pointer-events: auto;
+  }
+
+  .price-input::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--primary, #2d5a3d);
+    border: 2px solid white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    pointer-events: auto;
+  }
+
+  .price-input::-webkit-slider-runnable-track {
+    height: 4px;
+    background: transparent;
+  }
+
+  .price-input::-moz-range-track {
+    height: 4px;
+    background: transparent;
+  }
+
+  .slider-track {
+    position: absolute;
+    height: 4px;
+    width: 100%;
+    background: #e0e0e0;
+    top: 15px;
+    border-radius: 2px;
+  }
+
+  .slider-track::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    background: var(--primary, #2d5a3d);
+    left: 0;
+    right: 0;
+    border-radius: 2px;
+    transform-origin: left center;
+  }
+
+  .price-slider {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .price-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .apply-filter-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--primary, #2d5a3d);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+  }
+  
+  .apply-filter-btn:hover {
+    background: var(--accent, #1e3d28);
+  }
+  
+  .age-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+  }
+  
+  .filter-checkbox input[type="radio"] {
+    margin: 0;
+  }
+  
+  .filter-checkbox:hover {
+    color: var(--primary, #2d5a3d);
+  }
+  
+  .loading, .error {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-size: 16px;
+  }
+  
+  .error {
+    color: #dc3545;
+  }
+
+  .products-section {
+    min-height: 500px;
+  }
+
+  .products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .results-count {
+    color: #666;
+    font-size: 16px;
+  }
+
+  .sort-select {
+    padding: 8px 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .products-grid {
+    margin-top: 20px;
+  }
+
+  .products-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    padding: 10px 0;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary, #2d5a3d);
+  }
+
+  .product-image {
+    height: 200px;
+    overflow: hidden;
+    background: #f8f9fa;
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-link-wrapper {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .product-image-container {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+
+  .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .product-card:hover .product-img {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+  }
+
+  .product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(45, 90, 61, 0.9), rgba(30, 61, 40, 0.9));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 2;
+    backdrop-filter: blur(2px);
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+  }
+
+  .view-product-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 12px 24px;
+    border: 2px solid white;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .view-product-text:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  .discount-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 20px;
+    z-index: 3;
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .product-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 15px;
+  }
+
+  .wish-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid #eee;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .wish-icon i {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+  }
+
+  .wish-icon:hover {
+    box-shadow: 0 4px 16px rgba(185, 28, 28, 0.2);
+    transform: translateY(-2px);
+    border-color: #b91c1c;
+  }
+
+  .wish-icon:hover i {
+    transform: scale(1.1);
+  }
+
+  .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    font-size: 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .no-image i {
+    font-size: 24px;
+    opacity: 0.5;
+  }
+
+  .product-info {
+    padding: 25px;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  }
+
+  .product-name {
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .product-description {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .product-price {
+    color: var(--accent);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  .price-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .selling-price {
+    color: #b91c1c;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .original-price {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: line-through;
+    opacity: 0.8;
+  }
+
+  .view-product-btn {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+    font-weight: 500;
+  }
+
+  .view-product-btn:hover {
+    background: var(--accent);
+  }
+
+  .no-products {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .no-products p {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .back-to-home {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+    font-weight: 500;
+  }
+
+  .back-to-home:hover {
+    background: var(--accent);
+  }
+
+  @media (max-width: 1024px) {
+    .shop-container {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .filters-sidebar {
+      position: static;
+      order: 2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      margin-bottom: 30px;
+      padding: 30px 15px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+    }
+
+    .page-header p {
+      font-size: 16px;
+    }
+
+    .shop-container {
+      padding: 0 15px;
+    }
+
+    .products-header {
+      flex-direction: column;
+      gap: 15px;
+      align-items: stretch;
+    }
+
+    .products-container {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const priceMin = document.getElementById('priceMin');
+    const priceMax = document.getElementById('priceMax');
+    const minPriceLabel = document.getElementById('minPriceLabel');
+    const maxPriceLabel = document.getElementById('maxPriceLabel');
+    const applyPriceFilter = document.getElementById('applyPriceFilter');
+    const sortSelect = document.getElementById('sortSelect');
+    const ageFilters = document.querySelectorAll('input[name="age"]');
+    const productCount = document.getElementById('productCount');
+    let productsContainer = document.querySelector('.products-container');
+
+    function ensureProductsContainer() {
+      // Ensure we have a container to render into even if none existed (e.g., no products initially)
+      if (!productsContainer) {
+        const grid = document.querySelector('.products-grid');
+        if (grid) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'products-container';
+          grid.innerHTML = '';
+          grid.appendChild(wrapper);
+          productsContainer = wrapper;
+        }
+      }
+      return productsContainer;
+    }
+
+    function parseNum(v, def=0) {
+      const n = parseFloat(v);
+      return isNaN(n) ? def : n;
+    }
+
+    function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
+
+    function updateTrack() {
+      const min = parseNum(priceMin.min, 0);
+      const max = parseNum(priceMin.max, 0);
+      const v1 = parseNum(priceMin.value, min);
+      const v2 = parseNum(priceMax.value, max);
+      const pct1 = ((v1 - min) / (max - min || 1)) * 100;
+      const pct2 = ((v2 - min) / (max - min || 1)) * 100;
+      const track = document.querySelector('.slider-track');
+      if (track) {
+        track.style.setProperty('--start', pct1 + '%');
+        track.style.setProperty('--end', pct2 + '%');
+        track.style.background = `linear-gradient(to right, #e0e0e0 ${pct1}%, var(--primary, #2d5a3d) ${pct1}%, var(--primary, #2d5a3d) ${pct2}%, #e0e0e0 ${pct2}%)`;
+      }
+      if (minPriceLabel) minPriceLabel.textContent = '₹' + v1;
+      if (maxPriceLabel) maxPriceLabel.textContent = '₹' + v2;
+    }
+
+    function ensureBounds() {
+      if (!priceMin || !priceMax) return;
+      const minLimit = parseNum(priceMin.min, 0);
+      const maxLimit = parseNum(priceMin.max, 0);
+      const gap = 1; // minimal gap of 1 unit
+      let v1 = clamp(parseNum(priceMin.value, minLimit), minLimit, maxLimit - gap);
+      let v2 = clamp(parseNum(priceMax.value, maxLimit), minLimit + gap, maxLimit);
+      if (v1 > v2 - gap) v1 = v2 - gap;
+      if (v2 < v1 + gap) v2 = v1 + gap;
+      priceMin.value = String(v1);
+      priceMax.value = String(v2);
+      updateTrack();
+    }
+
+    ensureBounds();
+    if (priceMin) priceMin.addEventListener('input', ensureBounds);
+    if (priceMax) priceMax.addEventListener('input', ensureBounds);
+
+    // Apply filters function
+    function applyFilters() {
+      const minPrice = priceMin ? priceMin.value : '';
+      const maxPrice = priceMax ? priceMax.value : '';
+      const sortBy = sortSelect.value;
+      const selectedAgeEl = document.querySelector('input[name="age"]:checked');
+      const selectedAge = selectedAgeEl ? selectedAgeEl.value : '';
+
+      console.log('Applying filters:', { sort_by: sortBy, max_price: maxPrice, age: selectedAge });
+      
+      const params = new URLSearchParams(window.location.search);
+      // If at bounds, omit params to represent no filter
+      if (priceMin && (!minPrice || parseFloat(minPrice) <= parseFloat(priceMin.min))) {
+        params.delete('min_price');
+      } else if (minPrice) {
+        params.set('min_price', minPrice);
+      }
+      if (priceMax && (!maxPrice || parseFloat(maxPrice) >= parseFloat(priceMax.max))) {
+        params.delete('max_price');
+      } else if (maxPrice) {
+        params.set('max_price', maxPrice);
+      }
+      params.set('sort', sortBy);
+      if (selectedAge) {
+        params.set('age', selectedAge);
+      } else {
+        params.delete('age');
+      }
+      
+      const container = ensureProductsContainer();
+      container.innerHTML = '<div class="loading">Loading products...</div>';
+      
+      fetch(`${window.location.pathname}?${params.toString()}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        updateProductsDisplay(data.products);
+        if (productCount) productCount.textContent = data.total_products;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        const containerErr = ensureProductsContainer();
+        containerErr.innerHTML = '<div class="error">Error loading products. Please try again.</div>';
+      });
+    }
+
+    // Update products display
+    function updateProductsDisplay(products) {
+      if (!products || products.length === 0) {
+        productsContainer.innerHTML = '<div class="no-products"><p>No products found matching your criteria.</p></div>';
+        return;
+      }
+      
+      let html = '';
+      products.forEach(product => {
+        // Generate URL with unique prefix based on product type
+        let detailUrl;
+        if (product.product_type === 'gold') {
+          detailUrl = `/product/gold/g${product.id}/`;
+        } else if (product.product_type === 'silver') {
+          detailUrl = `/product/silver/s${product.id}/`;
+        } else if (product.product_type === 'imitation') {
+          detailUrl = `/product/imitation/i${product.id}/`;
+        } else {
+          detailUrl = `/product/${product.product_type}/${product.id}/`;
+        }
+        const hasDiscount = product.original_price && product.original_price > product.selling_price;
+        const imageUrl = product.image1_url || '/static/images/no-image.png';
+
+        html += `
+          <div class="product-card">
+            <a href="${detailUrl}" class="product-link-wrapper">
+              <div class="product-image-container">
+                ${hasDiscount ? '<div class="discount-badge">SALE</div>' : ''}
+                ${imageUrl ? `<img src="${imageUrl}" alt="${product.name}" class="product-img" loading="lazy">` : `
+                  <div class="no-image">
+                    <i class="fas fa-image"></i>
+                    <span>No Image</span>
+                  </div>
+                `}
+                <div class="product-overlay">
+                  <span class="view-product-text">View Details</span>
+                </div>
+              </div>
+              <div class="product-info">
+                <h5 class="product-title">${product.name}</h5>
+                <p class="product-description">${product.description ? product.description.substring(0, 50) + '...' : 'Beautiful jewelry piece'}</p>
+                <div class="price-container">
+                  <span class="selling-price">₹${Math.round(product.selling_price)}</span>
+                  ${hasDiscount ? `<del class="original-price">₹${Math.round(product.original_price)}</del>` : ''}
+                </div>
+              </div>
+            </a>
+          </div>
+        `;
+      });
+      productsContainer.innerHTML = html;
+    }
+
+    // Wishlist functionality is now handled by global wishlist.js
+
+    // Event listeners
+    if (applyPriceFilter) applyPriceFilter.addEventListener('click', applyFilters);
+    if (sortSelect) sortSelect.addEventListener('change', applyFilters);
+    if (ageFilters) {
+      ageFilters.forEach(filter => {
+        filter.addEventListener('change', applyFilters);
+      });
+    }
+    
+    // Wishlist handlers are initialized globally by wishlist.js
+  });
+</script>
+{% endblock %}

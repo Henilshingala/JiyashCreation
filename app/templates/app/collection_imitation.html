@@ -1,0 +1,269 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block title %}Imitation Collection{% endblock %}
+
+{% block content %}
+<style>
+/* Simple and Professional Collection Page Styling */
+.collection-page {
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 40px 0;
+}
+
+.collection-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.collection-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.collection-title {
+  font-size: 48px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.collection-subtitle {
+  font-size: 18px;
+  color: #666666;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Grid Layout */
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  padding: 20px 0;
+}
+
+/* Simple Card Design */
+.category-card {
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.category-card:hover {
+  border-color: #cccccc;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Image Placeholder */
+.category-image {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 25px;
+  border: 3px solid #333333;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  position: relative;
+  overflow: hidden;
+}
+
+.category-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 17px;
+}
+
+.category-image.no-image {
+  background: #f5f5f5;
+  color: #999999;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* Category Name */
+.category-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 20px;
+}
+
+.category-name a {
+  color: #333333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.category-name a:hover {
+  color: #555555;
+}
+
+/* Subcategories */
+.subcategories-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.subcategories-list li {
+  margin-bottom: 8px;
+}
+
+.subcategories-list a {
+  color: #666666;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.subcategories-list a:hover {
+  background: #f0f0f0;
+  color: #333333;
+}
+
+/* View Category Button */
+.view-category-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background: #333333;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.view-category-btn:hover {
+  background: #555555;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #666666;
+}
+
+.empty-state h3 {
+  font-size: 28px;
+  color: #333333;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  font-size: 18px;
+  color: #666666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .collection-container {
+    padding: 0 15px;
+  }
+  
+  .collection-title {
+    font-size: 36px;
+  }
+  
+  .collection-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .category-card {
+    padding: 25px 15px;
+  }
+  
+  .category-image {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .collection-title {
+    font-size: 28px;
+  }
+  
+  .category-image {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .category-name {
+    font-size: 20px;
+  }
+}
+</style>
+
+<div class="collection-page">
+  <div class="collection-container">
+    <div class="collection-header">
+      <h1 class="collection-title">Imitation Collection</h1>
+      <p class="collection-subtitle">Browse categories and subcategories</p>
+    </div>
+
+    {% if categories %}
+    <div class="collection-grid">
+      {% for cat in categories %}
+      <div class="category-card">
+        <div class="category-image {% if not cat.image %}no-image{% endif %}">
+          {% if cat.image %}
+            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" loading="lazy">
+          {% else %}
+            Image
+          {% endif %}
+        </div>
+        
+        <h3 class="category-name">
+          <a href="{% url 'app:category' 'imitation' cat.id %}">{{ cat.name }}</a>
+        </h3>
+
+        {% if cat.subcategory.all %}
+        <ul class="subcategories-list">
+          {% for sub in cat.subcategory.all %}
+          <li>
+            <a href="{% url 'app:subcategory' 'imitation' sub.id %}">{{ sub.name }}</a>
+          </li>
+          {% empty %}
+          <li style="color: #999999;">No subcategories</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <a class="view-category-btn" href="{% url 'app:category' 'imitation' cat.id %}">
+          View Category
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>No Categories Available</h3>
+      <p>We're working on adding imitation jewelry categories. Check back soon!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

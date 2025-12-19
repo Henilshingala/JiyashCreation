@@ -1,0 +1,1081 @@
+{% extends "app/base.html" %}
+{% block title %}My Wishlist - Jiyash{% endblock %}
+{% block content %}
+<div class="wishlist-container">
+  <!-- Loading Skeleton -->
+  <div class="loading-skeleton" id="loadingSkeleton">
+    <div class="skeleton-header">
+      <div class="skeleton-title"></div>
+      <div class="skeleton-subtitle"></div>
+    </div>
+    <div class="skeleton-grid">
+      <div class="skeleton-item"></div>
+      <div class="skeleton-item"></div>
+      <div class="skeleton-item"></div>
+      <div class="skeleton-item"></div>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header" id="pageHeader" style="opacity: 0;">
+    <div class="header-content">
+      <h1 class="animated-title">
+        <i class="fas fa-heart heart-icon"></i> 
+        <span class="title-text">My Wishlist</span>
+      </h1>
+      <div class="wishlist-counter">
+        <span class="counter-badge" id="wishlistCount">0</span>
+        <span class="counter-text">item(s) in your wishlist</span>
+      </div>
+    </div>
+    <div class="header-decoration"></div>
+  </div>
+
+  <!-- Wishlist Grid -->
+  <div class="wishlist-grid" id="wishlistGrid"></div>
+  
+  <!-- Empty Wishlist State -->
+  <div class="empty-wishlist" id="emptyWishlist" style="display:none;">
+    <div class="empty-animation">
+      <i class="fas fa-heart-broken broken-heart"></i>
+      <div class="floating-hearts">
+        <i class="fas fa-heart"></i>
+        <i class="fas fa-heart"></i>
+        <i class="fas fa-heart"></i>
+      </div>
+    </div>
+    <h2 class="empty-title">Your wishlist is empty</h2>
+    <p class="empty-subtitle">Start adding products you love to your wishlist!</p>
+    <a href="{% url 'app:shop_all' %}" class="shop-now-btn">
+      <i class="fas fa-shopping-bag"></i> 
+      <span>Shop Now</span>
+      <div class="btn-ripple"></div>
+    </a>
+  </div>
+</div>
+
+<style>
+/* CSS Variables for consistent theming */
+:root {
+  --primary-color: #2d5a3d;
+  --primary-light: #6fbf8f;
+  --secondary-color: #b91c1c;
+  --accent-color: #dc3545;
+  --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Loading Skeleton Animations */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-200deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes slideOut {
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+/* Container Styles */
+.wishlist-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+}
+
+/* Loading Skeleton */
+.loading-skeleton {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.skeleton-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.skeleton-title {
+  height: 40px;
+  width: 300px;
+  margin: 0 auto 15px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+.skeleton-subtitle {
+  height: 20px;
+  width: 200px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.skeleton-item {
+  height: 400px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 12px;
+}
+
+/* Page Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 50px;
+  position: relative;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+}
+
+.animated-title {
+  color: var(--primary-color);
+  font-size: clamp(28px, 5vw, 42px);
+  margin-bottom: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  text-shadow: 0 2px 4px rgba(45, 90, 61, 0.1);
+}
+
+.heart-icon {
+  color: #e74c3c;
+  animation: heartbeat 2s infinite;
+  filter: drop-shadow(0 0 10px rgba(231, 76, 60, 0.3));
+}
+
+.title-text {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: slideInLeft 0.8s ease-out 0.5s both;
+}
+
+.wishlist-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 18px;
+  color: #666;
+  animation: fadeInUp 0.6s ease-out 0.7s both;
+}
+
+.counter-badge {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+  animation: bounceIn 0.8s ease-out 0.9s both;
+}
+
+.header-decoration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(45, 90, 61, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+  animation: rotateIn 1s ease-out 0.2s both;
+}
+
+/* Wishlist Grid */
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+
+.wishlist-item {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  position: relative;
+  animation: bounceIn 0.6s ease-out both;
+  transform-origin: center;
+}
+
+.wishlist-item:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.wishlist-item:nth-child(3n) {
+  animation-delay: 0.2s;
+}
+
+.wishlist-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+  z-index: 1;
+}
+
+.wishlist-item:hover::before {
+  left: 100%;
+}
+
+.wishlist-item:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Item Image */
+.item-image {
+  height: 220px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  position: relative;
+}
+
+.product-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.item-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.wishlist-item:hover .item-image::after {
+  opacity: 1;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-smooth);
+}
+
+.wishlist-item:hover .item-image img {
+  transform: scale(1.1);
+}
+
+.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 16px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+/* Item Info */
+.item-info {
+  padding: 25px;
+  position: relative;
+  z-index: 2;
+}
+
+.item-title {
+  margin-bottom: 12px;
+}
+
+.product-title-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: var(--transition-smooth);
+}
+
+.item-title span {
+  color: var(--primary-color);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+.product-title-link:hover .item-title span,
+.item-title span:hover {
+  color: var(--primary-light);
+  text-shadow: 0 2px 4px rgba(45, 90, 61, 0.2);
+}
+
+.item-category {
+  color: #666;
+  font-size: 14px;
+  margin: 10px 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-price {
+  color: var(--secondary-color);
+  font-size: 24px;
+  font-weight: 800;
+  margin: 15px 0;
+  text-shadow: 0 1px 2px rgba(185, 28, 28, 0.1);
+  animation: pulse 2s infinite;
+}
+
+/* Item Actions */
+.item-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.remove-btn {
+  flex: 1;
+  background: linear-gradient(135deg, var(--accent-color), #c82333);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.remove-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.remove-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.remove-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+}
+
+.remove-btn:active {
+  transform: translateY(0);
+}
+
+.remove-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Empty Wishlist State */
+.empty-wishlist {
+  text-align: center;
+  padding: 80px 20px;
+  color: #666;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.empty-animation {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 30px;
+}
+
+.broken-heart {
+  font-size: 80px;
+  color: #ddd;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.floating-hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.floating-hearts i {
+  position: absolute;
+  font-size: 20px;
+  color: #ff6b6b;
+  animation: float 2s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.floating-hearts i:nth-child(1) {
+  top: 10%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.floating-hearts i:nth-child(2) {
+  top: 30%;
+  right: 15%;
+  animation-delay: 0.7s;
+}
+
+.floating-hearts i:nth-child(3) {
+  bottom: 20%;
+  left: 50%;
+  animation-delay: 1.4s;
+}
+
+.empty-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 700;
+  animation: slideInLeft 0.8s ease-out 0.3s both;
+}
+
+.empty-subtitle {
+  font-size: 18px;
+  margin-bottom: 40px;
+  color: #666;
+  line-height: 1.6;
+  animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+
+/* Shop Now Button */
+.shop-now-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: white;
+  padding: 18px 36px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 18px;
+  transition: var(--transition-bounce);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(45, 90, 61, 0.3);
+  animation: bounceIn 0.8s ease-out 0.7s both;
+}
+
+.shop-now-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.shop-now-btn:hover::before {
+  left: 100%;
+}
+
+.shop-now-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(45, 90, 61, 0.4);
+}
+
+.shop-now-btn:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wishlist-container {
+    padding: 15px;
+  }
+
+  .wishlist-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .item-actions {
+    flex-direction: column;
+  }
+  
+  .animated-title {
+    font-size: 28px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .wishlist-counter {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .empty-title {
+    font-size: 24px;
+  }
+
+  .shop-now-btn {
+    padding: 15px 30px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wishlist-item {
+    border-radius: 15px;
+  }
+
+  .item-info {
+    padding: 20px;
+  }
+
+  .item-title span {
+    font-size: 18px;
+  }
+
+  .item-price {
+    font-size: 20px;
+  }
+
+  .remove-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Performance optimizations */
+.wishlist-item {
+  will-change: transform;
+}
+
+.item-image img {
+  will-change: transform;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .wishlist-item {
+    border: 2px solid #000;
+  }
+  
+  .remove-btn {
+    border: 2px solid #fff;
+  }
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Enhanced Animation System
+  const loadingSkeleton = document.getElementById('loadingSkeleton');
+  const pageHeader = document.getElementById('pageHeader');
+  const grid = document.getElementById('wishlistGrid');
+  const empty = document.getElementById('emptyWishlist');
+  
+  // Animation utilities
+  function createRippleEffect(button, event) {
+    const ripple = document.createElement('span');
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.classList.add('btn-ripple');
+    
+    button.appendChild(ripple);
+    
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+  }
+  
+  function animateCounterUpdate(element, newValue) {
+    const currentValue = parseInt(element.textContent) || 0;
+    
+    // Prevent infinite animation for large differences
+    const maxSteps = 50;
+    const difference = Math.abs(newValue - currentValue);
+    
+    // If difference is too large or invalid, just set the value directly
+    if (difference > maxSteps || isNaN(newValue) || isNaN(currentValue)) {
+      element.textContent = newValue;
+      // Add bounce effect
+      element.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        element.style.transform = 'scale(1)';
+      }, 200);
+      return;
+    }
+    
+    const increment = newValue > currentValue ? 1 : -1;
+    const duration = 500;
+    const stepDuration = duration / difference;
+    
+    let current = currentValue;
+    const timer = setInterval(() => {
+      current += increment;
+      element.textContent = current;
+      
+      if (current === newValue) {
+        clearInterval(timer);
+        // Add bounce effect
+        element.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+          element.style.transform = 'scale(1)';
+        }, 200);
+      }
+    }, stepDuration);
+  }
+  
+  function animateItemRemoval(item, callback) {
+    // Add removal animation
+    item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    item.style.transform = 'translateX(-100%) scale(0.8)';
+    item.style.opacity = '0';
+    
+    setTimeout(() => {
+      item.remove();
+      if (callback) callback();
+    }, 500);
+  }
+  
+  function staggeredItemAnimation() {
+    const items = grid.querySelectorAll('.wishlist-item');
+    items.forEach((item, index) => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateY(30px)';
+      
+      setTimeout(() => {
+        item.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        item.style.opacity = '1';
+        item.style.transform = 'translateY(0)';
+      }, index * 100);
+    });
+  }
+  
+  function hideLoadingWithAnimation() {
+    loadingSkeleton.style.transition = 'all 0.5s ease-out';
+    loadingSkeleton.style.opacity = '0';
+    loadingSkeleton.style.transform = 'translateY(-20px)';
+    
+    setTimeout(() => {
+      loadingSkeleton.style.display = 'none';
+      
+      // Show page header
+      pageHeader.style.transition = 'all 0.8s ease-out';
+      pageHeader.style.opacity = '1';
+      pageHeader.style.transform = 'translateY(0)';
+    }, 300);
+  }
+  
+  // Authentication check
+  function getToken() { 
+    try { 
+      return localStorage.getItem('jwt_token'); 
+    } catch(_) { 
+      return null; 
+    } 
+  }
+  
+  const token = getToken();
+  if (!token) {
+    window.location.replace("{% url 'app:login' %}?next={{ request.path|urlencode }}");
+    return;
+  }
+  
+  // Initialize counter to 0 to prevent negative values
+  const wishlistCountElement = document.getElementById('wishlistCount');
+  if (wishlistCountElement) {
+    wishlistCountElement.textContent = '0';
+  }
+  
+  function productUrl(id) {
+    return '/shop-all/';
+  }
+  
+  function render(items) {
+    // Clear grid with animation
+    const existingItems = grid.querySelectorAll('.wishlist-item');
+    existingItems.forEach((item, index) => {
+      setTimeout(() => {
+        item.style.transition = 'all 0.3s ease-out';
+        item.style.opacity = '0';
+        item.style.transform = 'scale(0.8)';
+      }, index * 50);
+    });
+    
+    setTimeout(() => {
+      grid.innerHTML = '';
+      
+      if (!items || items.length === 0) {
+        empty.style.display = 'block';
+        empty.style.opacity = '0';
+        empty.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+          empty.style.transition = 'all 0.8s ease-out';
+          empty.style.opacity = '1';
+          empty.style.transform = 'translateY(0)';
+        }, 100);
+        
+        const countElement = document.getElementById('wishlistCount');
+        if (countElement) {
+          countElement.textContent = '0';
+        }
+        return;
+      }
+      
+      empty.style.display = 'none';
+      animateCounterUpdate(document.getElementById('wishlistCount'), items.length);
+      
+      items.forEach(function(it, index){
+        const card = document.createElement('div');
+        card.className = 'wishlist-item';
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        // Generate product URL based on product type
+        let productUrl = '';
+        if (it.product_type === 'gold') {
+          productUrl = `/product/gold/g${it.id}/`;
+        } else if (it.product_type === 'silver') {
+          productUrl = `/product/silver/s${it.id}/`;
+        } else if (it.product_type === 'imitation') {
+          productUrl = `/product/imitation/i${it.id}/`;
+        } else {
+          productUrl = `/product/${it.product_type}/${it.id}/`;
+        }
+        
+        card.innerHTML = `
+          <div class="item-image">
+            <a href="${productUrl}" class="product-link">
+              ${it.image ? `<img src="${it.image}" alt="${it.name}" loading="lazy">` : `<div class="no-image">No image</div>`}
+            </a>
+          </div>
+          <div class="item-info">
+            <h3 class="item-title">
+              <a href="${productUrl}" class="product-title-link">
+                <span>${it.name || 'Product'}</span>
+              </a>
+            </h3>
+            <div class="item-price">₹${it.price || ''}</div>
+            <div class="item-actions">
+              <button class="remove-btn" data-id="${it.id}" data-product-type="${it.product_type}">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>`;
+        
+        grid.appendChild(card);
+      });
+      
+      // Add enhanced event listeners
+      grid.querySelectorAll('.remove-btn').forEach(function(btn){
+        // Add ripple effect
+        btn.addEventListener('click', function(e){
+          createRippleEffect(btn, e);
+          
+          const id = btn.getAttribute('data-id');
+          const productType = btn.getAttribute('data-product-type');
+          if (!id || !productType) return;
+          
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+          
+          fetch(`/wishlist/remove/${productType}/${id}/`, { 
+            method: 'POST', 
+            headers: { 
+              'Authorization': 'Bearer ' + token, 
+              'X-Requested-With': 'XMLHttpRequest' 
+            } 
+          })
+          .then(r => r.json())
+          .then(data => { 
+            if (data && data.success) { 
+              const item = btn.closest('.wishlist-item');
+              animateItemRemoval(item, () => {
+                const remainingItems = grid.children.length;
+                if (remainingItems === 0) {
+                  empty.style.display = 'block';
+                  empty.style.opacity = '0';
+                  empty.style.transform = 'translateY(30px)';
+                  
+                  setTimeout(() => {
+                    empty.style.transition = 'all 0.8s ease-out';
+                    empty.style.opacity = '1';
+                    empty.style.transform = 'translateY(0)';
+                  }, 100);
+                }
+                const countElement = document.getElementById('wishlistCount');
+                if (countElement) {
+                  countElement.textContent = remainingItems;
+                  // Add bounce effect
+                  countElement.style.transform = 'scale(1.2)';
+                  setTimeout(() => {
+                    countElement.style.transform = 'scale(1)';
+                  }, 200);
+                }
+              });
+            }
+          })
+          .catch(() => {
+            btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+            setTimeout(() => {
+              btn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+            }, 2000);
+          })
+          .finally(() => { 
+            btn.disabled = false; 
+          });
+        });
+        
+        // Add hover effects
+        btn.addEventListener('mouseenter', function() {
+          btn.style.transform = 'translateY(-2px)';
+        });
+        
+        btn.addEventListener('mouseleave', function() {
+          btn.style.transform = 'translateY(0)';
+        });
+      });
+      
+      // Add image loading animations
+      grid.querySelectorAll('.item-image img').forEach(img => {
+        img.addEventListener('load', function() {
+          this.style.opacity = '0';
+          this.style.transform = 'scale(1.1)';
+          
+          setTimeout(() => {
+            this.style.transition = 'all 0.5s ease-out';
+            this.style.opacity = '1';
+            this.style.transform = 'scale(1)';
+          }, 100);
+        });
+      });
+      
+      // Staggered animation for items
+      setTimeout(() => {
+        staggeredItemAnimation();
+      }, 100);
+      
+    }, existingItems.length * 50 + 200);
+  }
+  
+  // Enhanced shop now button
+  const shopNowBtn = document.querySelector('.shop-now-btn');
+  if (shopNowBtn) {
+    shopNowBtn.addEventListener('click', function(e) {
+      createRippleEffect(this, e);
+    });
+  }
+  
+  fetch('{% url 'app:wishlist_api' %}', { 
+    headers: { 
+      'Authorization': 'Bearer ' + token, 
+      'X-Requested-With': 'XMLHttpRequest' 
+    } 
+  })
+  .then(function(resp){ 
+    if (resp.status === 401) { 
+      window.location.replace("{% url 'app:login' %}?next={{ request.path|urlencode }}"); 
+      return null; 
+    } 
+    return resp.json(); 
+  })
+  .then(function(data){ 
+    // Hide loading skeleton
+    setTimeout(() => {
+      hideLoadingWithAnimation();
+    }, 1000); // Show loading for at least 1 second for better UX
+    
+    setTimeout(() => {
+      if (!data) return; 
+      render(data.items || []); 
+    }, 1500);
+  })
+  .catch(function(){ 
+    hideLoadingWithAnimation();
+    setTimeout(() => {
+      empty.style.display = 'block';
+      empty.style.opacity = '0';
+      empty.style.transform = 'translateY(30px)';
+      
+      setTimeout(() => {
+        empty.style.transition = 'all 0.8s ease-out';
+        empty.style.opacity = '1';
+        empty.style.transform = 'translateY(0)';
+      }, 100);
+    }, 800);
+  });
+  
+  // Add scroll animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+  
+  // Observe elements for scroll animations
+  setTimeout(() => {
+    const elementsToObserve = document.querySelectorAll('.wishlist-item, .empty-wishlist');
+    elementsToObserve.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+      observer.observe(el);
+    });
+  }, 2000);
+});
+</script>
+{% endblock %}

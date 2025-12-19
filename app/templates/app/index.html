@@ -1,0 +1,1238 @@
+{% extends "app/base.html" %}
+{% block title %}Jiyash - Handcrafted Jewelry{% endblock %}
+{% block content %}
+<section class="fullscreen-carousel" id="carousel">
+  <div class="carousel-container">
+    <div class="carousel-slides" id="carouselSlides">
+      {% for slide in carousel_sliders %}
+      <div class="carousel-slide {% if forloop.first %}active{% endif %}">
+        <img src="{{ slide.image.url }}" srcset="{{ slide.image.url }} 1280w" sizes="(max-width: 640px) 100vw, 100vw" alt="{{ slide.title|default:'Carousel image' }}">
+        <div class="slide-content">
+          {% if slide.title %}
+            <h2 class="slide-title" style="color: {{ slide.title_color|default:'#2d5a3d' }};">{{ slide.title }}</h2>
+          {% endif %}
+          {% if slide.subtitle %}
+            <div class="slide-text" style="color: {{ slide.subtitle_color|default:'#4b5563' }};">{{ slide.subtitle }}</div>
+          {% endif %}
+          {% if slide.button_name %}
+            {% with btn_color=slide.button_color|default:'#2d5a3d' %}
+              {% if slide.button_link %}
+                <a href="{{ slide.button_link }}" class="buy-btn" style="background: {{ btn_color }}; border-color: {{ btn_color }};">{{ slide.button_name }}</a>
+              {% else %}
+                <button class="buy-btn" style="background: {{ btn_color }}; border-color: {{ btn_color }};">{{ slide.button_name }}</button>
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="carousel-slide active">
+        <img src="https://images.unsplash.com/photo-1612392061780-293e8ad13cf5?q=80&w=1920&auto=format&fit=crop" alt="Default Jewelry">
+        <div class="slide-content">
+          <h2 class="slide-title">Jiyash Creation</h2>
+          <div class="slide-text">Add carousel slides from admin panel</div>
+          <button class="buy-btn">Shop Now</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="carousel-nav prev" id="prevBtn">&#10094;</button>
+    <button class="carousel-nav next" id="nextBtn">&#10095;</button>
+    <div class="carousel-dots">
+      {% for slide in carousel_sliders %}
+        <span class="dot {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.counter0 }}"></span>
+      {% empty %}
+        <span class="dot active" data-slide="0"></span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="new-arrivals-section" id="featured">
+  <div class="container">
+    <h2 class="section-title">Most Wishlisted</h2>
+    <p class="section-subtitle">Our community's top picks right now</p>
+    <div class="new-arrivals-grid" id="featuredGrid">
+      {% if has_wishlisted_products %}
+        {% for product in most_wishlisted %}
+        <div class="arrival-card" data-product-id="{{ product.id }}">
+          <a href="{% if product.product_type == 'gold' %}{% url 'app:product_detail_gold' pk=product.id %}{% elif product.product_type == 'silver' %}{% url 'app:product_detail_silver' pk=product.id %}{% elif product.product_type == 'imitation' %}{% url 'app:product_detail_imitation' pk=product.id %}{% else %}{% url 'app:product_detail' product_type=product.product_type pk=product.id %}{% endif %}" class="arrival-link">
+            <div class="arrival-image">
+              {% if product.image1 %}
+              <img src="{{ product.image1.url }}" alt="{{ product.name }}">
+              {% else %}
+              <div class="no-product-image">No image</div>
+              {% endif %}
+              <div class="arrival-overlay">
+                <span class="view-product">View Product</span>
+              </div>
+            </div>
+            <div class="arrival-info">
+              <h3 class="arrival-title">{{ product.name }}</h3>
+              <div class="price-row">
+                <div class="price-col">
+                  <span class="arrival-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
+                  {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                  <span class="old-price">₹{{ product.display_original_price|default:product.original_price }}</span>
+                  {% endif %}
+                </div>
+                <div class="wishlist-count">
+                  <i class="fa-solid fa-heart" style="color: #b91c1c;"></i>
+                  <span>{{ product.wishlist_count }}</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="coming-soon-container" style="grid-column: 1 / -1;">
+          <div class="coming-soon-content">
+            <div class="coming-soon-icon">
+              <i class="fa-solid fa-heart" style="font-size: 48px; color: #2d5a3d; opacity: 0.3;"></i>
+            </div>
+            <h3 class="coming-soon-title">Coming Soon</h3>
+            <p class="coming-soon-message">
+              We're working on bringing you amazing jewelry pieces that our community will love. 
+              Check back soon for our most wishlisted items!
+            </p>
+            <div class="coming-soon-cta">
+              <a href="{% url 'app:shop_all' %}" class="btn btn-primary">Explore All Products</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="new-arrivals-section" id="new">
+  <div class="container">
+    <h2 class="section-title">New Arrivals</h2>
+    <p class="section-subtitle">Latest jewelry pieces added today</p>
+    <div class="new-arrivals-grid">
+      {% for product in new_arrivals %}
+      <div class="arrival-card">
+        <a href="{% if product.product_type == 'gold' %}{% url 'app:product_detail_gold' pk=product.id %}{% elif product.product_type == 'silver' %}{% url 'app:product_detail_silver' pk=product.id %}{% elif product.product_type == 'imitation' %}{% url 'app:product_detail_imitation' pk=product.id %}{% else %}{% url 'app:product_detail' product_type=product.product_type pk=product.id %}{% endif %}" class="arrival-link">
+          <div class="arrival-image">
+            {% if product.image1 %}
+            <img src="{{ product.image1.url }}" alt="{{ product.name }}">
+            {% else %}
+            <div class="no-product-image">No image</div>
+            {% endif %}
+            {% if product.display_original_price|default:product.original_price and product.display_selling_price|default:product.selling_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+            <span class="discount-badge">
+              {{ product.discount_percent }}% OFF
+            </span>
+            {% endif %}
+            <div class="arrival-overlay">
+              <span class="view-product">View Product</span>
+            </div>
+          </div>
+          <div class="arrival-info">
+            <h3 class="arrival-title">{{ product.name }}</h3>
+            <div class="price-row">
+              <div class="price-col">
+                <span class="arrival-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
+                {% if product.display_original_price|default:product.original_price and product.display_original_price|default:product.original_price > product.display_selling_price|default:product.selling_price %}
+                <span class="old-price">₹{{ product.display_original_price|default:product.original_price }}</span>
+                {% endif %}
+              </div>
+              <div class="icon-group">
+                <span class="wish-icon"
+                      data-product-id="{{ product.id }}"
+                      data-add-url="{% url 'app:add_to_wishlist' product_type=product.product_type pk=product.id %}"
+                      data-remove-url="{% url 'app:remove_from_wishlist' product_type=product.product_type pk=product.id %}"
+                      aria-pressed="{% if product.wishlist_key in wishlist_keys %}true{% else %}false{% endif %}" title="">
+                  {% if product.wishlist_key in wishlist_keys %}
+                    <i class="fa-solid fa-heart" style="color:#b91c1c;"></i>
+                  {% else %}
+                    <i class="fa-regular fa-heart" style="color:#b91c1c;"></i>
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+            {% if product.created_at and product.created_at.date == today %}
+              <span class="new-badge">New Today</span>
+            {% endif %}
+          </div>
+        </a>
+      </div>
+      {% empty %}
+      <div class="no-arrivals">
+        <p>No new arrivals yet. Check back soon!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+/* Enhanced New Arrivals Section */
+.new-arrivals-section {
+  padding: clamp(60px, 12vw, 120px) 0;
+  background: linear-gradient(135deg, rgba(45, 90, 61, 0.02) 0%, rgba(255, 255, 255, 0.98) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.new-arrivals-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(45,90,61,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.5;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.section-title {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: #2d5a3d;
+  margin-bottom: 10px;
+  position: relative;
+}
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(135deg, #2d5a3d 0%, #1e3d28 100%);
+  border-radius: 2px;
+}
+.section-subtitle {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 50px;
+}
+.new-arrivals-section .container {
+  max-width: 1600px;
+}
+.new-arrivals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 40px;
+  padding: 0;
+}
+.arrival-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform .25s ease, box-shadow .25s ease;
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.arrival-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(45, 90, 61, 0.12);
+}
+.arrival-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.arrival-image {
+  position: relative;
+  overflow: hidden;
+  background: #f8f9fa;
+  aspect-ratio: 1 / 1;
+}
+.arrival-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sale-badge, .discount-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  box-shadow: 0 6px 16px rgba(185,28,28,.35);
+}
+.arrival-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  transform: scale(1.05);
+  min-height: 100%;
+  min-width: 100%;
+  display: block;
+}
+.arrival-card:hover .arrival-image img {
+  transform: scale(1.1);
+}
+.no-product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+.arrival-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(45, 90, 61, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.arrival-card:hover .arrival-overlay {
+  opacity: 1;
+}
+.view-product {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border: 2px solid white;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+.view-product:hover {
+  background: white;
+  color: #2d5a3d;
+}
+.arrival-info {
+  padding: 24px 24px 24px 24px;
+  position: relative;
+  border-top: 1px solid #eee;
+}
+.arrival-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 12px;
+  line-height: 1.42;
+}
+.price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.price-col { display: flex; align-items: center; gap: 8px; }
+.arrival-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #b91c1c;
+}
+.old-price {
+  font-size: 13px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+.icon-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.wish-icon {
+  color: #2d5a3d;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(45,90,61,0.3);
+  transition: all .2s ease;
+}
+.wish-icon:hover { background: rgba(45,90,61,.06); }
+.wish-icon { color: #b91c1c; border-color: rgba(185,28,28,0.3); }
+.wish-icon:hover { background: rgba(185,28,28,0.06); }
+.new-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.no-arrivals {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 18px;
+}
+.view-all-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  border: 2px solid #2d5a3d;
+  color: #2d5a3d;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: all 0.25s ease;
+  background: transparent;
+}
+.view-all-btn:hover {
+  background: #2d5a3d;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(45,90,61,0.18);
+  transform: translateY(-1px);
+}
+.slide-title {
+  color: #2d5a3d;
+  font-size: clamp(22px, 3.2vw, 36px);
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  margin: 0 0 12px 0;
+  text-shadow: none;
+}
+.slide-text {
+  color: #4b5563;
+  font-size: clamp(13px, 2vw, 16px);
+  line-height: 1.5;
+  margin: 0 auto 20px auto;
+  max-width: 720px;
+  text-shadow: none;
+}
+.buy-btn {
+  --btn-bg1: #2d5a3d;
+  --btn-bg2: #3f7a54;
+  --btn-shadow: rgba(45,90,61,0.45);
+  appearance: none;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--btn-bg1), var(--btn-bg2));
+  border-radius: 9999px;
+  padding: 14px 24px 14px 26px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 28px var(--btn-shadow);
+  transition: transform .18s ease, box-shadow .18s ease, background .25s ease;
+  position: relative;
+}
+.buy-btn::after {
+  content: '\203A';
+  font-size: 18px;
+  line-height: 1;
+  display: inline-block;
+  transform: translateX(0);
+  transition: transform .25s ease, opacity .25s ease;
+  opacity: .9;
+}
+.buy-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(45,90,61,0.55);
+}
+.buy-btn:hover::after { transform: translateX(4px); opacity: 1; }
+.buy-btn:active { transform: translateY(0); box-shadow: 0 8px 22px rgba(45,90,61,0.35); }
+.buy-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 0 0 5px rgba(45,90,61,0.55), 0 12px 28px var(--btn-shadow);
+}
+.carousel-slide.active .slide-content {
+  opacity: 1;
+  animation: popIn 600ms cubic-bezier(0.22, 1, 0.36, 1) both, elevate 6s ease-in-out 800ms infinite alternate;
+}
+@keyframes popIn {
+  0% { opacity: 0; transform: translate(-50%, -48%) scale(0.96); filter: saturate(0.9) brightness(0.98); }
+  60% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes elevate {
+  0% { box-shadow: 0 16px 40px rgba(0,0,0,0.18); }
+  100% { box-shadow: 0 26px 70px rgba(0,0,0,0.28); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carousel-slide.active .slide-content { animation: none; opacity: 1; }
+  .carousel-slides { transition: none; }
+}
+.slide-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: min(92%, 680px);
+  padding: 22px 28px;
+  box-sizing: border-box;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  border: 1px solid rgba(45, 90, 61, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transform-origin: center;
+}
+@media (max-width: 1024px) {
+  .slide-content { width: min(92%, 560px); padding: 20px 30px; top: 52%; }
+  .slide-title { font-size: clamp(20px, 5.6vw, 28px); }
+  .slide-text { font-size: clamp(13px, 3.8vw, 15px); max-width: 420px; margin-bottom: 16px; }
+}
+@media (max-width: 768px) {
+  .slide-content { width: min(92%, 480px); padding: 18px 22px; top: 56%; }
+  .slide-title { font-size: clamp(18px, 6.2vw, 24px); }
+  .slide-text { font-size: clamp(12px, 3.6vw, 14px); max-width: 360px; margin-bottom: 14px; }
+}
+@media (max-width: 480px) {
+  .slide-content { width: min(94%, 480px); padding: 16px 18px; top: 56%; }
+  .slide-title { font-size: clamp(18px, 6.2vw, 24px); }
+  .slide-text { font-size: clamp(12px, 3.6vw, 14px); max-width: 360px; margin-bottom: 14px; }
+}
+.fullscreen-carousel {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+}
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.carousel-slides {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  touch-action: pan-y;
+}
+.carousel-slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 0 0 100%;
+  transition: all 0.5s ease;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+.carousel-slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  transform: scale(1.05);
+  min-height: 100%;
+  min-width: 100%;
+  display: block;
+}
+@media (max-width: 1023px) {
+  .carousel-nav { width: 50px; height: 50px; }
+  .carousel-dots { bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 640px) {
+  .carousel-nav { width: 44px; height: 44px; }
+  .carousel-nav::before { width: 8px; height: 8px; border-width: 2px; }
+  .dot { width: 6px; height: 6px; }
+  .carousel-dots { gap: 8px; padding: 8px 12px; }
+  .slide-content { width: min(94%, 460px); padding: 14px 16px; top: 56%; }
+  .slide-title { font-size: clamp(18px, 6vw, 22px); }
+  .slide-text { font-size: clamp(12px, 4vw, 14px); margin-bottom: 12px; }
+  .buy-btn { padding: 12px 20px 12px 22px; font-size: 15px; }
+}
+@media (max-width: 380px) {
+  .slide-content { 
+    padding: clamp(10px, 3vw, 12px) clamp(12px, 3.5vw, 14px); 
+    top: 58%; 
+    width: min(96%, 320px);
+  }
+  .slide-title { 
+    font-size: clamp(16px, 4.5vw, 18px); 
+    margin-bottom: clamp(8px, 2vw, 10px);
+  }
+  .slide-text { 
+    font-size: clamp(11px, 3vw, 12px); 
+    margin-bottom: clamp(10px, 2.5vw, 12px);
+    max-width: 280px;
+  }
+  .buy-btn { 
+    padding: clamp(8px, 2vw, 10px) clamp(14px, 3.5vw, 16px); 
+    font-size: clamp(13px, 3.5vw, 14px);
+    min-height: 40px;
+  }
+}
+
+/* Additional Touch-Friendly Enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .buy-btn, .btn, .view-product {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  .wish-icon {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  .carousel-nav {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .dot {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  .dot.active::before {
+    background: #2d5a3d;
+    transform: scale(1.2);
+  }
+}
+@media (max-width: 768px) {
+  .carousel-nav { display: none !important; }
+}
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(45, 90, 61, 0.95);
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  opacity: 1;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.carousel-nav::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-top: 3px solid white;
+  border-right: 3px solid white;
+  transition: all 0.3s ease;
+}
+.carousel-nav.prev::before {
+  transform: rotate(-135deg);
+  margin-left: 4px;
+}
+.carousel-nav.next::before {
+  transform: rotate(45deg);
+  margin-right: 4px;
+}
+.carousel-nav:hover {
+  background: rgba(45, 90, 61, 0.9);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 
+    0 12px 40px rgba(45, 90, 61, 0.4),
+    0 0 30px rgba(45, 90, 61, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+.carousel-nav:hover::before {
+  border-color: white;
+  transform: scale(1.2) rotate(-135deg);
+}
+.carousel-nav.next:hover::before {
+  transform: scale(1.2) rotate(45deg);
+}
+.carousel-nav:active {
+  transform: translateY(-50%) scale(0.95);
+  box-shadow: 
+    0 4px 20px rgba(45, 90, 61, 0.6),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.carousel-nav.prev {
+  left: 30px;
+}
+.carousel-nav.next {
+  right: 30px;
+}
+.carousel-dots {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+.dot.active {
+  background: #2d5a3d;
+  transform: scale(1.2);
+  box-shadow: 0 1px 4px rgba(45, 90, 61, 0.3);
+}
+.dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: scale(1.1);
+}
+/* Enhanced Mobile-First Responsive Design */
+@media (max-width: 480px) {
+  .new-arrivals-section {
+    padding: clamp(40px, 8vw, 60px) 0;
+  }
+  
+  .section-title {
+    font-size: clamp(20px, 5vw, 24px);
+    margin-bottom: clamp(8px, 2vw, 10px);
+  }
+  
+  .section-subtitle {
+    font-size: clamp(14px, 3.5vw, 16px);
+    margin-bottom: clamp(30px, 6vw, 40px);
+  }
+  
+  .new-arrivals-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 4vw, 20px);
+    padding: 0 clamp(10px, 3vw, 15px);
+  }
+  
+  .arrival-card {
+    border-radius: clamp(8px, 2vw, 12px);
+  }
+  
+  .arrival-info {
+    padding: clamp(16px, 4vw, 20px);
+  }
+  
+  .arrival-title {
+    font-size: clamp(16px, 4vw, 18px);
+    margin-top: clamp(8px, 2vw, 12px);
+  }
+  
+  .arrival-price {
+    font-size: clamp(16px, 4vw, 18px);
+  }
+  
+  .old-price {
+    font-size: clamp(12px, 3vw, 13px);
+  }
+  
+  .wish-icon {
+    width: clamp(28px, 6vw, 32px);
+    height: clamp(28px, 6vw, 32px);
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+  
+  .wishlist-count {
+    font-size: clamp(10px, 2.5vw, 12px);
+    padding: clamp(3px, 1vw, 4px) clamp(6px, 1.5vw, 8px);
+  }
+  
+  .new-badge {
+    font-size: clamp(10px, 2.5vw, 12px);
+    padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 12px);
+  }
+  
+  .discount-badge {
+    font-size: clamp(10px, 2.5vw, 12px);
+    padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 10px);
+    top: clamp(8px, 2vw, 12px);
+    right: clamp(8px, 2vw, 12px);
+  }
+  
+  .view-product {
+    font-size: clamp(14px, 3.5vw, 16px);
+    padding: clamp(10px, 2.5vw, 12px) clamp(20px, 5vw, 24px);
+  }
+  
+  .coming-soon-content {
+    padding: clamp(30px, 6vw, 40px) clamp(20px, 4vw, 30px);
+    margin: 0 clamp(10px, 3vw, 15px);
+  }
+  
+  .coming-soon-title {
+    font-size: clamp(20px, 5vw, 24px);
+  }
+  
+  .coming-soon-message {
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+  
+  .btn {
+    padding: clamp(10px, 2.5vw, 12px) clamp(20px, 5vw, 24px);
+    font-size: clamp(14px, 3.5vw, 16px);
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .new-arrivals-section {
+    padding: clamp(50px, 8vw, 60px) 0;
+  }
+  
+  .section-title {
+    font-size: clamp(24px, 5vw, 28px);
+  }
+  
+  .new-arrivals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(16px, 3vw, 20px);
+    padding: 0 clamp(10px, 3vw, 15px);
+  }
+  
+  .arrival-info {
+    padding: clamp(16px, 3vw, 20px);
+  }
+  
+  .arrival-title {
+    font-size: clamp(16px, 3.5vw, 18px);
+  }
+  
+  .arrival-price {
+    font-size: clamp(16px, 3.5vw, 18px);
+  }
+  
+  .wish-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .new-arrivals-section {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    font-size: 28px;
+  }
+  
+  .new-arrivals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    padding: 0 15px;
+  }
+  
+  .arrival-info {
+    padding: 18px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .new-arrivals-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+  .section-title {
+    font-size: 24px;
+    height: 45px;
+  }
+  .carousel-nav::before {
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+  }
+  .carousel-nav.prev {
+    left: 15px;
+  }
+  .carousel-nav.next {
+    right: 15px;
+  }
+  .dot {
+    width: 4px;
+    height: 4px;
+  }
+  .carousel-dots {
+    gap: 12px;
+    padding: 10px 16px;
+  }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fullscreen-carousel {
+  animation: fadeIn 1s ease-in;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+main.page-transition > .container {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 100%;
+  margin: 0;
+}
+main.page-transition {
+  padding: 0 !important;
+}
+
+/* Coming Soon Styles */
+.coming-soon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 40px 20px;
+}
+
+.coming-soon-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 40px 30px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+  border: 1px solid rgba(45, 90, 61, 0.1);
+}
+
+.coming-soon-icon {
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.coming-soon-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d5a3d;
+  margin-bottom: 15px;
+  font-family: 'Dancing Script', cursive;
+}
+
+.coming-soon-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.coming-soon-cta .btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #2d5a3d 0%, #1e3d28 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+}
+
+.coming-soon-cta .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45, 90, 61, 0.4);
+  background: linear-gradient(135deg, #1e3d28 0%, #2d5a3d 100%);
+}
+
+/* Wishlist Count Styles */
+.wishlist-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #b91c1c;
+  font-weight: 600;
+  background: rgba(185, 28, 28, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-left: auto;
+}
+
+.wishlist-count i {
+  font-size: 10px;
+}
+
+/* Price Row Layout Update */
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.price-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Responsive adjustments for coming soon */
+@media (max-width: 768px) {
+  .coming-soon-content {
+    padding: 30px 20px;
+    margin: 0 10px;
+  }
+  
+  .coming-soon-title {
+    font-size: 24px;
+  }
+  
+  .coming-soon-message {
+    font-size: 14px;
+  }
+  
+  .wishlist-count {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const slides = document.getElementById('carouselSlides');
+  const dots = document.querySelectorAll('.dot');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  let currentSlide = 0;
+  const totalSlides = document.querySelectorAll('.carousel-slide').length;
+  const slideEls = document.querySelectorAll('.carousel-slide');
+  let autoplayTimer = null;
+  const AUTOPLAY_MS = 5000;
+  document.documentElement.style.setProperty('--total-slides', totalSlides);
+  slides.style.width = (totalSlides * 100) + '%';
+  const perSlide = (100 / totalSlides) + '%';
+  slideEls.forEach(el => {
+    el.style.flex = `0 0 ${perSlide}`;
+    el.style.width = perSlide;
+  });
+  function showSlide(index) {
+    const perSlidePct = 100 / totalSlides;
+    slides.style.transform = `translateX(-${index * perSlidePct}%)`;
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+    slideEls.forEach((el, i) => el.classList.toggle('active', i === index));
+    currentSlide = index;
+  }
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    showSlide(currentSlide);
+  }
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    showSlide(currentSlide);
+  }
+  nextBtn.addEventListener('click', nextSlide);
+  prevBtn.addEventListener('click', prevSlide);
+  dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
+  function startAutoplay() {
+    stopAutoplay();
+    autoplayTimer = setInterval(nextSlide, AUTOPLAY_MS);
+  }
+  function stopAutoplay() {
+    if (autoplayTimer) {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  }
+  startAutoplay();
+  let resizeTO;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTO);
+    resizeTO = setTimeout(startAutoplay, 200);
+  });
+  if (slideEls.length) slideEls[0].classList.add('active');
+  if (dots.length) dots[0].classList.add('active');
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'ArrowRight') nextSlide();
+  });
+  let startX = 0;
+  let isTouching = false;
+  const threshold = 50;
+  slides.addEventListener('touchstart', function(e) {
+    if (!e.touches || e.touches.length === 0) return;
+    isTouching = true;
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  slides.addEventListener('touchmove', function(e) {
+    if (!isTouching) return;
+  }, { passive: true });
+  slides.addEventListener('touchend', function(e) {
+    if (!isTouching) return;
+    const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
+    const deltaX = endX - startX;
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX < 0) nextSlide(); else prevSlide();
+    }
+    isTouching = false;
+  });
+  function getToken() {
+    return localStorage.getItem('jwt_token') || null;
+  }
+  document.querySelectorAll('.arrival-card .wish-icon').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const inWishlist = (el.getAttribute('aria-pressed') === 'true');
+      const url = inWishlist ? el.getAttribute('data-remove-url') : el.getAttribute('data-add-url');
+      if (!url) return;
+      el.style.pointerEvents = 'none';
+      const token = getToken();
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? 'Bearer ' + token : ''
+        }
+      }).then(function(resp) {
+        if (resp.status === 401) {
+          window.location.href = "{% url 'app:login' %}";
+          return null;
+        }
+        return resp.json();
+      }).then(function(data) {
+        if (!data) return;
+        if (data.success) {
+          const icon = el.querySelector('i');
+          if (data.in_wishlist === false || data.removed) {
+            if (icon) {
+              icon.classList.remove('fa-solid');
+              icon.classList.add('fa-regular');
+              icon.style.color = '#b91c1c';
+            }
+            el.setAttribute('aria-pressed', 'false');
+            el.title = 'Add to Wishlist';
+          } else {
+            if (icon) {
+              icon.classList.remove('fa-regular');
+              icon.classList.add('fa-solid');
+              icon.style.color = '#b91c1c';
+            }
+            el.setAttribute('aria-pressed', 'true');
+            el.title = 'In Wishlist';
+
+            // Dynamically insert into Most Wishlisted section (up to 3)
+            try {
+              const featuredGrid = document.getElementById('featuredGrid');
+              if (featuredGrid) {
+                const card = el.closest('.arrival-card');
+                if (card) {
+                  const pid = card.querySelector('[data-product-id]') ? card.querySelector('[data-product-id]').getAttribute('data-product-id') : card.getAttribute('data-product-id') || el.getAttribute('data-product-id');
+                  const present = featuredGrid.querySelector('[data-product-id="' + (pid || '') + '"]');
+                  if (!present) {
+                    const clone = card.cloneNode(true);
+                    const clonePid = pid || (clone.getAttribute('data-product-id'));
+                    if (!clonePid) clone.setAttribute('data-product-id', el.getAttribute('data-product-id'));
+                    // Remove wishlist icon inside clone to avoid double-binding
+                    const cloneWish = clone.querySelector('.wish-icon');
+                    if (cloneWish) cloneWish.remove();
+                    featuredGrid.prepend(clone);
+                    // Cap at 3
+                    const cards = featuredGrid.querySelectorAll('.arrival-card');
+                    if (cards.length > 3) {
+                      featuredGrid.removeChild(cards[cards.length - 1]);
+                    }
+                  }
+                }
+              }
+            } catch (_) {}
+          }
+        }
+      }).catch(function(err) {
+      }).finally(function() {
+        el.style.pointerEvents = '';
+      });
+    });
+  });
+});
+</script>
+{% endblock %}

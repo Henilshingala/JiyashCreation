@@ -1,0 +1,300 @@
+{% extends "app/base.html" %}
+{% block title %}{{ subcategory.name }} - Jiyash{% endblock %}
+{% block content %}
+<div class="subcategory-header">
+  <h2>{{ subcategory.name }}</h2>
+</div>
+
+<div class="products-grid">
+  {% if products %}
+    <div class="products-container">
+      {% for product in products %}
+        <div class="product-card" data-url="{% if product.product_type|default:category_type == 'gold' %}{% url 'app:product_detail_gold' pk=product.id %}{% elif product.product_type|default:category_type == 'silver' %}{% url 'app:product_detail_silver' pk=product.id %}{% elif product.product_type|default:category_type == 'imitation' %}{% url 'app:product_detail_imitation' pk=product.id %}{% else %}{% url 'app:product_detail' product_type=product.product_type|default:category_type pk=product.id %}{% endif %}">
+          <div class="product-image">
+            {% if product.primary_image_url %}
+              <img src="{{ product.primary_image_url }}" alt="{{ product.title }}">
+            {% else %}
+              <div class="no-image">No Image</div>
+            {% endif %}
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.title }}</h3>
+            <p class="product-description">{{ product.description|truncatewords:15 }}</p>
+            <div class="product-price">
+              <span class="current-price">₹{{ product.display_selling_price|default:product.selling_price }}</span>
+              {% if product.display_discount_percentage|default:product.discount_percentage > 0 %}
+                <span class="original-price">₹{{ product.display_original_price|default:product.original_price }}</span>
+              {% endif %}
+            </div>
+            {% if product.display_discount_percentage|default:product.discount_percentage > 0 %}
+              <div class="discount-info">
+                <span class="discount-badge">{{ product.display_discount_percentage|default:product.discount_percentage|floatformat:0 }}% OFF</span>
+              </div>
+            {% endif %}
+            <div class="product-actions">
+                <a href="{% if product.product_type|default:category_type == 'gold' %}{% url 'app:product_detail_gold' pk=product.id %}{% elif product.product_type|default:category_type == 'silver' %}{% url 'app:product_detail_silver' pk=product.id %}{% elif product.product_type|default:category_type == 'imitation' %}{% url 'app:product_detail_imitation' pk=product.id %}{% else %}{% url 'app:product_detail' product_type=product.product_type|default:category_type pk=product.id %}{% endif %}" class="view-product-btn" onclick="event.stopPropagation();">View Product</a>
+                <span class="wish-icon" title="Add to Wishlist"
+                        data-add-url="{% url 'app:add_to_wishlist' product_type=product.product_type|default:category_type pk=product.id %}"
+                        data-remove-url="{% url 'app:remove_from_wishlist' product_type=product.product_type|default:category_type pk=product.id %}"
+                        onclick="event.stopPropagation(); toggleWishlist(this)">
+                    <i class="fa-regular fa-heart"></i>
+                </span>
+            </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% if products.has_other_pages %}
+    <div class="pagination" style="display:flex; gap:8px; justify-content:center; margin:20px 0;">
+      {% if products.has_previous %}
+        <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span class="page-status">Page {{ products.number }} of {{ products.paginator.num_pages }}</span>
+      {% if products.has_next %}
+        <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  {% else %}
+         <div class="no-products">
+       <p>No products found in this subcategory.</p>
+       <a href="{% url 'app:home' %}" class="back-to-home">Back to Home</a>
+     </div>
+  {% endif %}
+</div>
+
+<style>
+  .subcategory-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .subcategory-header h2 {
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 28px;
+  }
+
+
+
+  .products-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .products-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-image {
+    height: 200px;
+    overflow: hidden;
+    background: #f8f9fa;
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    font-size: 14px;
+  }
+
+  .product-info {
+    padding: 20px;
+  }
+
+  .product-name {
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .product-description {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .product-price {
+    color: var(--accent);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  .view-product-btn {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+    font-weight: 500;
+  }
+
+  .view-product-btn:hover {
+    background: var(--accent);
+  }
+
+  .no-products {
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    margin: 40px auto;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+
+  .no-products::before {
+    content: '📦';
+    font-size: 64px;
+    display: block;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+
+  .no-products p {
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: #495057;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .back-to-home {
+    display: inline-block;
+    background: #2d5a3d;
+    color: white;
+    padding: 14px 28px;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .back-to-home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: #1e3d28;
+  }
+
+  @media (max-width: 768px) {
+    .products-container {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 15px;
+    }
+
+    .subcategory-header {
+      margin-bottom: 30px;
+      padding: 15px;
+    }
+
+    .subcategory-header h2 {
+      font-size: 24px;
+    }
+
+    .no-products {
+      padding: 60px 15px;
+      margin: 20px;
+    }
+
+    .no-products::before {
+      font-size: 48px;
+    }
+
+    .no-products p {
+      font-size: 18px;
+      margin-bottom: 25px;
+    }
+
+    .back-to-home {
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+  }
+</style>
+<style>
+  /* Icon actions styling for wishlist/cart */
+  .product-card { cursor: pointer; }
+  .actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .icon-group { display: flex; align-items: center; gap: 10px; }
+  .wish-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .wish-icon i { color: #b91c1c; font-size: 16px; }
+  .wish-icon:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); transform: translateY(-1px); }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Make entire card clickable
+  document.querySelectorAll('.product-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      const link = card.querySelector('.view-product-btn');
+      const url = link ? link.getAttribute('href') : card.getAttribute('data-url');
+      if (url) window.location.href = url;
+    });
+  });
+
+  function getJwtToken() {
+    try { return localStorage.getItem('jwt_token'); } catch(_) { return null; }
+  }
+
+  // Wishlist functionality is now handled by global wishlist.js
+
+});
+</script>
+{% endblock %}
