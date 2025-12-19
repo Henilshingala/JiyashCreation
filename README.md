@@ -111,25 +111,6 @@ JiyashCreation-main/
    - Main website: http://localhost:8000
    - Admin panel: http://localhost:8000/admin
 
-## 📸 Output Screenshots
-
-Experience the visual interface of JiyashCreation:
-
-| | |
-|---|---|
-| ![Landing Page](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/1.png) | ![Product Catalog](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/2.png) |
-| ![Product Detail](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/3.png) | ![Cart View](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/4.png) |
-| ![Checkout Process](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/5.png) | ![User Login](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/6.png) |
-| ![Admin Dashboard](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/7.png) | ![Order Management](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/8.png) |
-| ![Category Management](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/9.png) | ![Static Pages](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/10.png) |
-| ![Responsive Design](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/11.png) | ![Search Functionality](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/12.png) |
-| ![User Profile](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/13.png) | ![Wishlist](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/14.png) |
-| ![Payment Methods](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/15.png) | ![Review System](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/16.png) |
-| ![Carousel Settings](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/17.png) | |
-
----
-*Reference for Output Images:* [Henilshingala/Output-images](https://github.com/Henilshingala/Output-images/tree/master/JiyashCreation)
-
 ## 🔧 Configuration
 
 ### Settings Configuration (jiyash/settings.py)
@@ -233,7 +214,22 @@ Core dependencies:
 
 ---
 
-**Created by**: JiyashCreation Team
-**Framework**: Django
-**License**: [Specify your license]
-**Status**: Active Development
+
+## 📸 Output Screenshots
+
+Experience the visual interface of JiyashCreation:
+
+| | |
+|---|---|
+| ![Landing Page](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/1.png) | ![Product Catalog](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/2.png) |
+| ![Product Detail](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/3.png) | ![Cart View](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/4.png) |
+| ![Checkout Process](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/5.png) | ![User Login](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/6.png) |
+| ![Admin Dashboard](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/7.png) | ![Order Management](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/8.png) |
+| ![Category Management](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/9.png) | ![Static Pages](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/10.png) |
+| ![Responsive Design](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/11.png) | ![Search Functionality](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/12.png) |
+| ![User Profile](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/13.png) | ![Wishlist](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/14.png) |
+| ![Payment Methods](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/15.png) | ![Review System](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/16.png) |
+| ![Carousel Settings](https://raw.githubusercontent.com/Henilshingala/Output-images/master/JiyashCreation/17.png) | |
+
+---
+
